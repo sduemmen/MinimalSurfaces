@@ -1,0 +1,8 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; width: 300px; align-self: flex-end; font-size: 12px; background-color: rgb(56, 56, 56);">
+        <ui:RadioButtonGroup label="DrawMode" choices="Wireframe,Shaded Wireframe,Shaded" name="drawModeButtonGroup" style="font-size: 12px; color: rgb(161, 161, 161);" />
+        <ui:SliderInt label="NumHoles" value="1" high-value="10" fill="true" low-value="2" show-input-field="true" name="holeCountSlider" style="color: rgb(154, 154, 154);" />
+        <ui:Slider label="Hole Radius" value="0.1" high-value="0.3" fill="true" show-input-field="true" name="holeRadiusSlider" style="color: rgb(149, 149, 149);" />
+        <ui:Slider label="Offset Holes" value="0" high-value="6.28" fill="false" name="holeOffsetSlider" style="color: rgb(161, 161, 161);" />
+    </ui:VisualElement>
+</ui:UXML>
