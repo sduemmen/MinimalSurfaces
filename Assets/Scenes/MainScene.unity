@@ -552,14 +552,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c595e0bfd1180c1086b9a205684fc6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimalSurface
+  initialSphereRadius: 1
+  subdivisions: 5
   _holeLayout: 0
   _holePositions: []
   _holeCount: 5
-  _holeRadius: 0.35
+  _holeRadius: 0.2
   dt: 1
   epsilon: 0.00001
   maxIterations: 5000
-  iterationsPerSecond: 60
+  iterationsPerSecond: 120
   _meshFilter: {fileID: 1575107492}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

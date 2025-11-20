@@ -9,17 +9,18 @@ public class MinimalSurface : MonoBehaviour
     public enum HoleLayout
     {
         Random,
-        XZ_Plane,
+        XZ_Plane
     }
-    
-    [Header("Holes")] 
-    [SerializeField] HoleLayout _holeLayout;
+
+    [Header("Sphere Settings")] public float initialSphereRadius = 1f;
+    public int subdivisions = 5;
+
+    [Header("Holes")] [SerializeField] HoleLayout _holeLayout;
     [SerializeField] List<Vector3> _holePositions;
     [SerializeField] int _holeCount = 2;
     [SerializeField] float _holeRadius = 0.1f;
 
-    [Header("Relaxation")] 
-    public float dt = 1.0f;
+    [Header("Relaxation")] public float dt = 1.0f;
     public float epsilon = 0.00001f;
     public int maxIterations = 5000;
     public float iterationsPerSecond = 60f;
@@ -30,9 +31,8 @@ public class MinimalSurface : MonoBehaviour
     HashSet<(int, int)> _edges;
     bool[] _fixed;
     Mesh _mesh;
-    Mesh _sphereMesh;
     [SerializeField] MeshFilter _meshFilter;
-    
+
     const float TAU = Mathf.PI * 2;
 
     void Awake() {
@@ -41,8 +41,29 @@ public class MinimalSurface : MonoBehaviour
         StartRelaxation();
     }
 
+    void OnDrawGizmos() {
+        Gizmos.color = Color.blue;
+        foreach (Vector3 holePos in _holePositions) {
+            Gizmos.DrawWireSphere(holePos, _holeRadius);
+        }
+    }
+
+    [ContextMenu("Start Relaxation")]
+    void StartRelaxation() {
+        StopAllCoroutines();
+
+        MakeNewMesh();
+        ComputeHolePositions();
+        RemoveVerticesNearHoles();
+        ComputeVertexAdjacencyAndEdges();
+        IdentifyFixedVertices();
+        AlignFixedVerticesToHoles();
+
+        StartCoroutine(RunRelaxation());
+    }
+
     void MakeNewMesh() {
-        _meshFilter.sharedMesh = IcoSphere.Create(1f, 4);
+        _meshFilter.sharedMesh = IcoSphere.Create(initialSphereRadius, subdivisions);
         _mesh = _meshFilter.sharedMesh;
     }
 
@@ -52,44 +73,29 @@ public class MinimalSurface : MonoBehaviour
         switch (_holeLayout) {
             case HoleLayout.Random:
                 for (int i = 0; i < _holeCount; i++) {
-                    Vector3 holePosition = Random.onUnitSphere;
+                    Vector3 holePosition = Random.onUnitSphere * initialSphereRadius;
                     _holePositions.Add(holePosition);
                 }
+
                 break;
             case HoleLayout.XZ_Plane:
                 for (int i = 0; i < _holeCount; i++) {
-                    float angle = TAU * ((float) i / _holeCount);
-                    Vector3 holePosition = new Vector3(Mathf.Cos(angle), this.transform.position.y, Mathf.Sin(angle));
+                    float angle = TAU * ((float)i / _holeCount);
+                    Vector3 holePosition = new Vector3(Mathf.Cos(angle), transform.position.y, Mathf.Sin(angle)) * initialSphereRadius;
                     _holePositions.Add(holePosition);
                 }
+
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    [ContextMenu("Start Relaxation")]
-    void StartRelaxation() {
-        StopAllCoroutines();
-        
-        MakeNewMesh();
-        ComputeHolePositions();
-        RemoveVerticesNearHoles();
-        ComputeVertexAdjacencyAndEdges();
-        IdentifyFixedVertices();
-        
-        StartCoroutine(RunRelaxation());
-    }
-
-    IEnumerator RunRelaxation() {
-        yield return RelaxationCoroutine();
-    }
-
     void RemoveVerticesNearHoles() {
         if (_holePositions == null || _holePositions.Count == 0) {
             return;
         }
-        
+
         Vector3[] vertices = _mesh.vertices;
         int[] triangles = _mesh.triangles;
         int initialVertexCount = vertices.Length;
@@ -97,11 +103,11 @@ public class MinimalSurface : MonoBehaviour
 
         // remove vertices in the vicinity of holes
         bool[] removeVertex = new bool[initialVertexCount];
-        
+
         for (int i = 0; i < initialVertexCount; i++) {
             bool shouldRemove = false;
             Vector3 vertexWorldPos = _meshFilter.transform.TransformPoint(vertices[i]);
-            
+
             foreach (Vector3 holePos in _holePositions) {
                 float distanceFromHole = Vector3.Distance(vertexWorldPos, holePos);
                 if (distanceFromHole <= _holeRadius) {
@@ -109,13 +115,13 @@ public class MinimalSurface : MonoBehaviour
                     break;
                 }
             }
-            
+
             removeVertex[i] = shouldRemove;
         }
 
         // only keep triangles that don't include removed vertices
         List<int> newTriangles = new List<int>();
-        
+
         for (int i = 0; i < initialTriangleCount; i += 3) {
             int a = triangles[i];
             int b = triangles[i + 1];
@@ -137,7 +143,7 @@ public class MinimalSurface : MonoBehaviour
 
         for (int i = 0; i < newTriangles.Count; i++) {
             int oldIndex = newTriangles[i];
-            
+
             if (!vertexIndexMap.TryGetValue(oldIndex, out int mappedIndex)) {
                 Vector3 v = vertices[oldIndex];
                 _vertices.Add(v);
@@ -148,7 +154,7 @@ public class MinimalSurface : MonoBehaviour
                 newTriangles[i] = mappedIndex;
             }
         }
-        
+
         _triangles = newTriangles.ToArray();
 
         // finalize mesh
@@ -162,7 +168,7 @@ public class MinimalSurface : MonoBehaviour
     void ComputeVertexAdjacencyAndEdges() {
         _adjacentTriangleVertices = new List<(int, int)>[_vertices.Count];
         _edges = new HashSet<(int, int)>();
-        
+
         for (int i = 0; i < _vertices.Count; i++) {
             _adjacentTriangleVertices[i] = new List<(int, int)>();
         }
@@ -186,12 +192,53 @@ public class MinimalSurface : MonoBehaviour
         _fixed = new bool[_vertices.Count];
 
         foreach ((int, int) edge in _edges) {
-            if (!_edges.Contains((edge.Item2, edge.Item1)))
-            {
+            if (!_edges.Contains((edge.Item2, edge.Item1))) {
                 _fixed[edge.Item1] = true;
                 _fixed[edge.Item2] = true;
             }
         }
+    }
+
+    void AlignFixedVerticesToHoles() {
+        if (_holePositions == null || _holePositions.Count == 0) {
+            return;
+        }
+
+        float r1 = initialSphereRadius;
+        float r2 = _holeRadius;
+
+        for (int p = 0; p < _fixed.Length; p++) {
+            if (_fixed[p]) {
+                Vector3 nearestHolePosLocal = Vector3.positiveInfinity;
+                float nearestHoleDistance = float.MaxValue;
+
+                foreach (Vector3 holePos in _holePositions) {
+                    Vector3 holePosLocal = _meshFilter.transform.InverseTransformPoint(holePos);
+                    float distanceFromHole = Vector3.Distance(holePosLocal, _vertices[p]);
+                    if (distanceFromHole < nearestHoleDistance) {
+                        nearestHoleDistance = distanceFromHole;
+                        nearestHolePosLocal = holePosLocal;
+                    }
+                }
+
+                Vector3 c1 = transform.position;
+                Vector3 c2 = nearestHolePosLocal;
+                float d = Vector3.Distance(c1, c2);
+                float h = 0.5f + (r1 * r1 - r2 * r2) / (2f * d * d);
+
+                Vector3 c_i = c1 + h * (c2 - c1);
+                float r_i = Mathf.Sqrt(r1 * r1 - Mathf.Pow(h * d, 2));
+
+                Vector3 intersectingPlaneNormal = (c_i - c1).normalized;
+                Vector3 projectedOnPlane = Vector3.ProjectOnPlane(_vertices[p] - c_i, intersectingPlaneNormal);
+
+                _vertices[p] = c_i + projectedOnPlane.normalized * r_i;
+            }
+        }
+    }
+
+    IEnumerator RunRelaxation() {
+        yield return RelaxationCoroutine();
     }
 
     IEnumerator RelaxationCoroutine() {
@@ -204,7 +251,7 @@ public class MinimalSurface : MonoBehaviour
             for (int p = 0; p < _vertices.Count; p++) {
                 displacement[p] = Vector3.zero;
                 List<(int, int)> adjacentVertexPairs = _adjacentTriangleVertices[p];
-                
+
                 if (_fixed[p] || adjacentVertexPairs.Count == 0) {
                     continue;
                 }
