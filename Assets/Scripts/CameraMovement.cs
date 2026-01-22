@@ -1,10 +1,12 @@
 using UnityEngine;
 
-public class CameraMovement : MonoBehaviour
-{
+public class CameraMovement : MonoBehaviour {
     public Vector3 target = Vector3.zero;
     public float rotationSpeed = 0.001f;
     public float cameraDistance = 5f;
+
+    public float minCameraDistance = 1f;
+    public float maxCameraDistance = 20f;
 
     public float minThetaDeg = 40f;
     public float maxThetaDeg = 140f;

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f180fd83fba97ce4c96700611321fb44, type: 3}
+  m_Name: Holed Icosphere Generator
+  m_EditorClassIdentifier: Assembly-CSharp::Meshes.HoledIcosphereGenerator
+  initialSphereRadius: 1
+  subdivisions: 4
+  sphereCenter: {x: 0, y: 0, z: 0}
+  holeLayout: 0
+  holeCount: 3
+  holeRadius: 0.2

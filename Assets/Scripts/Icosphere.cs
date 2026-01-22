@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class IcoSphere
-{
+public static class IcoSphere {
     public static Mesh Create(float radius = 1.0f, int subdivisions = 2) {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -48,9 +47,7 @@ public static class IcoSphere
             4, 9, 5, 2, 4, 11, 6, 2, 10, 8, 6, 7, 9, 8, 1
         };
 
-        for (int i = 0; i < faces.Length; i++) {
-            triangles.Add(faces[i]);
-        }
+        triangles.AddRange(faces);
     }
 
     static void Subdivide(List<Vector3> vertices, List<int> triangles, int subdivisions) {
@@ -114,8 +111,7 @@ public static class IcoSphere
         }
     }
 
-    struct EdgeKey
-    {
+    struct EdgeKey {
         public int a;
         public int b;
 
