@@ -138,6 +138,8 @@ public class MinimalSurface : MonoBehaviour {
         _currentStepCount = 0;
         _isConverged = false;
 
+        _currentSolver.Initialize(_currentMeshData, this);
+        
         if (!IsSolving) {
             _currentSolveRoutine = StartCoroutine(RunSolve());
         }
