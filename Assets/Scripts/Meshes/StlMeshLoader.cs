@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Parabox.Stl;
+using ThirdParty.Stl;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 

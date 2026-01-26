@@ -30,8 +30,8 @@ namespace Solver {
                 if (meshData.fixedVertices[p] || adjacentVertexPairs.Count == 0) continue;
 
                 Vector3 c = Vector3.zero;
-                foreach ((int, int) pair in adjacentVertexPairs) {
-                    c += meshData.vertices[pair.Item1] + meshData.vertices[pair.Item2];
+                foreach ((int a, int b) in adjacentVertexPairs) {
+                    c += meshData.vertices[a] + meshData.vertices[b];
                 }
 
                 c /= 2f * adjacentVertexPairs.Count;

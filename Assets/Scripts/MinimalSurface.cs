@@ -4,9 +4,20 @@ using Solver;
 using UnityEngine;
 
 public class MinimalSurface : MonoBehaviour {
-    [SerializeField] MeshGeneratorBase _generator;
-    [SerializeField] MinimalSurfaceSolverBase _solver;
+    public enum SurfaceMaterialMode {
+        Shaded,
+        Wireframe,
+        ShadedWireframe,
+        Soap
+    }
+
     [SerializeField] MeshFilter _meshFilter;
+    [SerializeField] MeshRenderer _meshRenderer;
+    [SerializeField] Material _shadedMaterial;
+    [SerializeField] Material _wireframeMaterial;
+    [SerializeField] Material _shadedWireframeMaterial;
+    [SerializeField] Material _soapMaterial;
+    [SerializeField] SurfaceMaterialMode _materialMode = SurfaceMaterialMode.Shaded;
 
     public int stepsPerSecond = 60;
     public int maxSteps = 5000;
@@ -52,11 +63,22 @@ public class MinimalSurface : MonoBehaviour {
         get => _currentMeshData?.mesh;
     }
 
+    public SurfaceMaterialMode MaterialMode {
+        get => _materialMode;
+        set => SetMaterialMode(value);
+    }
+
 
     void Awake() {
         if (_meshFilter == null) {
             _meshFilter = GetComponent<MeshFilter>();
         }
+
+        if (_meshRenderer == null) {
+            _meshRenderer = GetComponent<MeshRenderer>();
+        }
+
+        ApplyMaterial();
     }
 
     public void TogglePause() {
@@ -101,7 +123,11 @@ public class MinimalSurface : MonoBehaviour {
             yield return new WaitForSeconds(StepInterval);
         }
 
-        _convergedAfterSteps = _currentStepCount;
+        if (_currentStepCount >= maxMaxSteps) {
+            _isConverged = true;
+        }
+
+        _convergedAfterSteps = _currentStepCount >= maxMaxSteps ? maxSteps : _currentStepCount;
         _currentSolveRoutine = null;
     }
 
@@ -124,5 +150,33 @@ public class MinimalSurface : MonoBehaviour {
         _currentSolveRoutine = null;
         _isPaused = false;
         _isConverged = false;
+    }
+
+    public void SetMaterialMode(SurfaceMaterialMode mode) {
+        _materialMode = mode;
+        ApplyMaterial();
+    }
+
+    void ApplyMaterial() {
+        if (_meshRenderer == null) return;
+
+        Material targetMaterial = GetMaterialForMode(_materialMode);
+        if (targetMaterial != null && _meshRenderer.sharedMaterial != targetMaterial) {
+            _meshRenderer.sharedMaterial = targetMaterial;
+        }
+    }
+
+    Material GetMaterialForMode(SurfaceMaterialMode mode) {
+        switch (mode) {
+            case SurfaceMaterialMode.Wireframe:
+                return _wireframeMaterial;
+            case SurfaceMaterialMode.ShadedWireframe:
+                return _shadedWireframeMaterial;
+            case SurfaceMaterialMode.Soap:
+                return _soapMaterial;
+            case SurfaceMaterialMode.Shaded:
+            default:
+                return _shadedMaterial;
+        }
     }
 }

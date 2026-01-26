@@ -27,9 +27,7 @@ namespace Solver {
 
             // v_{1/2} = v0 + 0.5*dt*a0
             for (int i = 0; i < meshData.vertices.Length; i++) {
-                _velocities[i] = meshData.fixedVertices[i]
-                    ? Vector3.zero
-                    : 0.5f * dt * _accelerations[i];
+                _velocities[i] = meshData.fixedVertices[i] ? Vector3.zero : 0.5f * dt * _accelerations[i];
             }
 
             // for (int i = 0; i < meshData.neighbors.Length; i++) {
