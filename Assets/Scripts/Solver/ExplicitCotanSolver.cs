@@ -23,9 +23,9 @@ namespace Solver {
                 float Ap = 0f;
 
                 foreach ((int a, int b) in meshData.triangleNeighborPairsByVertex[p]) {
-                    Vector3 ab =  meshData.vertices[a] - meshData.vertices[b];
+                    Vector3 ab = meshData.vertices[a] - meshData.vertices[b];
                     Vector3 pa = meshData.vertices[p] - meshData.vertices[a];
-                    Vector3 pb = meshData.vertices[p] -  meshData.vertices[b];
+                    Vector3 pb = meshData.vertices[p] - meshData.vertices[b];
                     Vector3 abxpb = Vector3.Cross(ab, pb);
                     float A = Mathf.Sqrt(Vector3.Dot(abxpb, abxpb));
                     
