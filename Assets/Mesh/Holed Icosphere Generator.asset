@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Holed Icosphere Generator
   m_EditorClassIdentifier: Assembly-CSharp::Meshes.HoledIcosphereGenerator
   initialSphereRadius: 1
-  subdivisions: 4
+  subdivisions: 3
   sphereCenter: {x: 0, y: 0, z: 0}
   holeLayout: 0
   holeCount: 3
-  holeRadius: 0.2
+  holeRadius: 0.3
