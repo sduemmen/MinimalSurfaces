@@ -367,13 +367,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.19547601, y: -0.25346372, z: 0.052377634, w: 0.9459397}
+  m_LocalRotation: {x: 0.062340874, y: 0.65602404, z: 0.19253029, w: 0.7271027}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 23.351, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: -9.32, y: 82.342, z: 21.507}
 --- !u!114 &410087042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -484,6 +484,7 @@ MonoBehaviour:
   _mainCamera: {fileID: 0}
   _surface: {fileID: 0}
   _generators:
+  - {fileID: 11400000, guid: e79c8b9c30dfdfe4192ce985eaedb5e2, type: 2}
   - {fileID: 11400000, guid: f327e5b3be68f624da67d095ce9b8d02, type: 2}
   - {fileID: 11400000, guid: 690edfc864583fb4db004ca486fde4b5, type: 2}
   _solvers:
@@ -621,8 +622,8 @@ MonoBehaviour:
   _shadedWireframeMaterial: {fileID: 2100000, guid: 545b8ff246f8c8d9da3a9b09ff97adfb, type: 2}
   _soapMaterial: {fileID: 0}
   _materialMode: 1
-  stepsPerSecond: 60
-  maxSteps: 5000
+  stepsPerSecond: 240
+  maxSteps: 100000
   minStepsPerSecond: 1
   maxStepsPerSecond: 240
   minMaxSteps: 100
