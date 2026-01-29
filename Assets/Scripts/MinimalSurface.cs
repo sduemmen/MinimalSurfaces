@@ -6,8 +6,8 @@ using UnityEngine;
 public class MinimalSurface : MonoBehaviour {
     public enum SurfaceMaterialMode {
         Shaded,
-        Wireframe,
         ShadedWireframe,
+        Wireframe,
         Soap
     }
 
@@ -17,7 +17,7 @@ public class MinimalSurface : MonoBehaviour {
     [SerializeField] Material _wireframeMaterial;
     [SerializeField] Material _shadedWireframeMaterial;
     [SerializeField] Material _soapMaterial;
-    [SerializeField] SurfaceMaterialMode _materialMode = SurfaceMaterialMode.Shaded;
+    [SerializeField] SurfaceMaterialMode _materialMode = SurfaceMaterialMode.ShadedWireframe;
 
     public int stepsPerSecond = 60;
     public int maxSteps = 5000;

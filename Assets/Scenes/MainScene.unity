@@ -490,6 +490,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ae7aacf3f1e0e7f44bac229c3e036d76, type: 2}
   - {fileID: 11400000, guid: 455a6ee5a2bb0474d80e02da0911b62a, type: 2}
   - {fileID: 11400000, guid: b534d628e1b3b834e91a2dce8f1dc053, type: 2}
+  - {fileID: 11400000, guid: a0d255996fd005e4b81cf976135909d9, type: 2}
   _panelRect:
     serializedVersion: 2
     x: 12
@@ -614,12 +615,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimalSurface
   _meshFilter: {fileID: 1575107492}
-  _meshRenderer: {fileID: 1575107491}
+  _meshRenderer: {fileID: 0}
   _shadedMaterial: {fileID: 2100000, guid: 79af6cb25041613bebb0f506809536a1, type: 2}
   _wireframeMaterial: {fileID: 2100000, guid: 84509c5336974d38a85fac1cf7c69edc, type: 2}
   _shadedWireframeMaterial: {fileID: 2100000, guid: 545b8ff246f8c8d9da3a9b09ff97adfb, type: 2}
   _soapMaterial: {fileID: 0}
-  _materialMode: 0
+  _materialMode: 1
   stepsPerSecond: 60
   maxSteps: 5000
   minStepsPerSecond: 1
