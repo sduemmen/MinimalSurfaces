@@ -181,7 +181,7 @@ namespace UI {
             string[] names = Enum.GetNames(typeof(MinimalSurface.SurfaceMaterialMode));
             int idx = Array.IndexOf(names, current.ToString());
             int prevIdx = idx;
-            
+
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("<", GUILayout.Width(28f))) {
@@ -258,14 +258,11 @@ namespace UI {
             string status;
             if (_surface.IsPaused) {
                 status = "Status: Paused";
-            }
-            else if (_surface.IsSolving) {
+            } else if (_surface.IsSolving) {
                 status = $"Status: Solving ({_surface.CurrentStepCount} steps)";
-            }
-            else if (_surface.IsConverged) {
+            } else if (_surface.IsConverged) {
                 status = $"Status: Converged after {_surface.ConvergedAfterSteps} steps";
-            }
-            else {
+            } else {
                 status = "Status: Idle";
             }
 

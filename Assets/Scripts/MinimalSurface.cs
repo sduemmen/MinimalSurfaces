@@ -139,7 +139,7 @@ public class MinimalSurface : MonoBehaviour {
         _isConverged = false;
 
         _currentSolver.Initialize(_currentMeshData, this);
-        
+
         if (!IsSolving) {
             _currentSolveRoutine = StartCoroutine(RunSolve());
         }

@@ -29,8 +29,11 @@ namespace UI {
 
         static bool DrawField(object target, FieldInfo field) {
             Type t = field.FieldType;
+#if UNITY_EDITOR
             string label = ObjectNames.NicifyVariableName(field.Name);
-
+#else
+            string label = field.Name;
+#endif
             object value = field.GetValue(target);
             bool changed = false;
 
@@ -55,8 +58,7 @@ namespace UI {
                             changed = true;
                         }
                     }
-                }
-                else if (t == typeof(float)) {
+                } else if (t == typeof(float)) {
                     float v = (float)value;
                     string key = MakeKey(target, field);
 
@@ -75,44 +77,37 @@ namespace UI {
                             changed = true;
                         }
                     }
-                }
-                else if (t == typeof(bool)) {
+                } else if (t == typeof(bool)) {
                     bool v = (bool)value;
                     bool next = GUILayout.Toggle(v, "");
                     if (next != v) {
                         field.SetValue(target, next);
                         changed = true;
                     }
-                }
-                else if (t == typeof(string)) {
+                } else if (t == typeof(string)) {
                     string v = (string)value ?? "";
                     string next = GUILayout.TextField(v, GUILayout.Width(220f));
                     if (!string.Equals(next, v, StringComparison.Ordinal)) {
                         field.SetValue(target, next);
                         changed = true;
                     }
-                }
-                else if (t.IsEnum) {
+                } else if (t.IsEnum) {
                     if (DrawEnumPopup(target, field, (Enum)value)) {
                         changed = true;
                     }
-                }
-                else if (t == typeof(Vector3)) {
+                } else if (t == typeof(Vector3)) {
                     Vector3 v = (Vector3)value;
                     Vector3 next = DrawVector3(target, field, v);
                     if (next != v) {
                         field.SetValue(target, next);
                         changed = true;
                     }
-                }
-                else {
+                } else {
                     GUILayout.Label($"({t.Name})", GUILayout.Width(120f));
                 }
-            }
-            catch (Exception) {
+            } catch (Exception) {
                 GUILayout.Label("ERR", GUILayout.Width(40f));
-            }
-            finally {
+            } finally {
                 GUILayout.EndHorizontal();
             }
 

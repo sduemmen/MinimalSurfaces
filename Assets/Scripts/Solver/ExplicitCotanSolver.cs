@@ -8,8 +8,8 @@ namespace Solver {
         public float convergenceTolerance = 0.015f;
 
         Vector3[] _displacement;
-        
-        
+
+
         public override void Initialize(MeshData meshData, MinimalSurface context) {
             _displacement = new Vector3[meshData.vertices.Length];
         }
@@ -28,16 +28,16 @@ namespace Solver {
                     Vector3 pb = meshData.vertices[p] - meshData.vertices[b];
                     Vector3 abxpb = Vector3.Cross(ab, pb);
                     float A = Mathf.Sqrt(Vector3.Dot(abxpb, abxpb));
-                    
+
                     if (A < 1e-04f) continue;
-                    
+
                     float cota = Vector3.Dot(ab, pb) / A;
                     float cotb = -Vector3.Dot(ab, pa) / A;
-                    
+
                     _displacement[p] += pa * cotb + pb * cota;
                     if (Vector3.Dot(pa, pb) > 0) {
                         if (cota > 0 && cotb > 0) {
-                            Ap += (cota*Vector3.Dot(pb, pb) + cotb*Vector3.Dot(pa, pa)) / 8;
+                            Ap += (cota * Vector3.Dot(pb, pb) + cotb * Vector3.Dot(pa, pa)) / 8;
                         } else {
                             Ap += 0.25f * A;
                         }
@@ -47,13 +47,13 @@ namespace Solver {
                 }
 
                 _displacement[p] /= Ap;
-                
+
                 float d = Mathf.Sqrt(Vector3.Dot(_displacement[p], _displacement[p]));
 
                 if (d > maxGrad) {
                     maxGrad = d;
                 }
-                
+
                 meshData.vertices[p] -= dt * _displacement[p];
             }
 
