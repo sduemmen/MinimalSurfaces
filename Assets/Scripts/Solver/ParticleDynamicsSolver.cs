@@ -14,12 +14,9 @@ namespace Solver {
 
         Vector3[] _velocities;
         Vector3[] _accelerations;
-        bool _isHalfStep;
-        float _maxGrad;
 
 
         public override void Initialize(MeshData meshData, MinimalSurface context) {
-            _maxGrad = 0;
             _velocities = new Vector3[meshData.vertices.Length];
             _accelerations = new Vector3[meshData.vertices.Length];
 
@@ -55,22 +52,23 @@ namespace Solver {
             }
 
             // r_{k+1} = r_k + dt * v_{k+1/2}
+            float maxGrad = 0f;
             for (int i = 0; i < meshData.vertices.Length; i++) {
                 if (meshData.fixedVertices[i]) continue;
 
                 Vector3 r_k = meshData.vertices[i];
                 meshData.vertices[i] += dt * _velocities[i];
 
-                float move = (meshData.vertices[i] - r_k).magnitude;
-                if (move > _maxGrad) {
-                    _maxGrad = move;
+                float d = (meshData.vertices[i] - r_k).magnitude;
+                if (d > maxGrad) {
+                    maxGrad = d;
                 }
             }
 
             meshData.mesh.SetVertices(meshData.vertices);
             meshData.mesh.RecalculateNormals();
 
-            return _maxGrad < convergenceTolerance;
+            return maxGrad < convergenceTolerance;
         }
 
         void ComputeAccelerations(MeshData meshData) {
