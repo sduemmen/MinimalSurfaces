@@ -108,6 +108,9 @@ namespace ThirdParty.Stl
 		/// <returns></returns>
 		public static bool WriteFile(string path, Mesh mesh, FileType type = FileType.Ascii, bool convertToRightHandedCoordinates = true)
 		{
+			if (!path.EndsWith(".stl")) {
+				path += ".stl";
+			}
 			return WriteFile(path, new Mesh[] { mesh }, type, convertToRightHandedCoordinates);
 		}
 
