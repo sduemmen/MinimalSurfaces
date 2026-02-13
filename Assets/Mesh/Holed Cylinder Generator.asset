@@ -15,6 +15,6 @@ MonoBehaviour:
   baseDiameter: 2
   height: 2
   rotationEuler: {x: 0, y: 0, z: 0}
-  thetaSubdivisions: 16
-  ySubdivisions: 7
+  thetaSubdivisions: 32
+  ySubdivisions: 32
   offsetVertices: 1
