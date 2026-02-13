@@ -492,6 +492,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 455a6ee5a2bb0474d80e02da0911b62a, type: 2}
   - {fileID: 11400000, guid: b534d628e1b3b834e91a2dce8f1dc053, type: 2}
   - {fileID: 11400000, guid: a0d255996fd005e4b81cf976135909d9, type: 2}
+  - {fileID: 11400000, guid: b3c3690933ddcd042bfefe653dc2c27d, type: 2}
   _panelRect:
     serializedVersion: 2
     x: 12
