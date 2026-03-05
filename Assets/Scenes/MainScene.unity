@@ -156,8 +156,8 @@ Camera:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -206,13 +206,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.06906008, z: 0, w: 0.99761254}
-  m_LocalPosition: {x: 0.79, y: 0.18, z: -2.68}
+  m_LocalRotation: {x: 0.0452758, y: 0, z: 0, w: 0.99897456}
+  m_LocalPosition: {x: 0, y: 0.1, z: -2.68}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -7.92, z: 0}
+  m_LocalEulerAnglesHint: {x: 5.19, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,6 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98631dab518edca89894784824d4b890, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraMovement
+  shouldRotate: 0
   target: {x: 0, y: 0, z: 0}
   rotationSpeed: 0.07
   cameraDistance: 4
@@ -276,6 +277,8 @@ MonoBehaviour:
   maxCameraDistance: 20
   minThetaDeg: 60
   maxThetaDeg: 120
+  theta: 1.5707964
+  phi: 0
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,6 +502,7 @@ MonoBehaviour:
     y: 12
     width: 520
     height: 900
+  _toggleUIKey: 116
 --- !u!4 &1101625818
 Transform:
   m_ObjectHideFlags: 0

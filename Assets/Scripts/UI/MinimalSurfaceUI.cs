@@ -5,6 +5,7 @@ using Solver;
 using ThirdParty.StandaloneFileBrowser;
 using ThirdParty.Stl;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace UI {
     public class MinimalSurfaceUI : MonoBehaviour {
@@ -15,6 +16,9 @@ namespace UI {
         [SerializeField] List<MinimalSurfaceSolverBase> _solvers = new List<MinimalSurfaceSolverBase>();
 
         [SerializeField] Rect _panelRect = new Rect(12, 12, 520, 1080);
+        [SerializeField] KeyCode _toggleUIKey = KeyCode.T;
+        
+        bool shouldHideUI = false;
 
         int _selectedGeneratorIdx;
         int _selectedSolverIdx;
@@ -40,6 +44,12 @@ namespace UI {
             _surface.GenerateMesh(_generator);
         }
 
+        void Update() {
+            if (Keyboard.current.tKey.wasPressedThisFrame) {
+                shouldHideUI = !shouldHideUI;
+            }
+        }
+
         void EnsureInstances() {
             _generator = GetOrCreateInstance(_generators, _selectedGeneratorIdx, _generator);
             _solver = GetOrCreateInstance(_solvers, _selectedSolverIdx, _solver);
@@ -63,6 +73,8 @@ namespace UI {
         }
 
         void OnGUI() {
+            if (shouldHideUI) return;
+            
             GUILayout.BeginArea(_panelRect, GUI.skin.window);
             _scroll = GUILayout.BeginScrollView(_scroll);
 
@@ -79,8 +91,14 @@ namespace UI {
 
             // Camera parameters
             GUILayout.Label("Camera", GUI.skin.box);
+            _mainCamera.shouldRotate = GUILayout.Toggle(_mainCamera.shouldRotate, "Rotate Camera");
             _mainCamera.cameraDistance = DrawFloatSlider("Camera Distance", _mainCamera.cameraDistance, _mainCamera.minCameraDistance, _mainCamera.maxCameraDistance);
 
+            GUI.enabled = !_mainCamera.shouldRotate;
+            _mainCamera.theta = DrawFloatSlider("Theta", _mainCamera.theta, 0, Mathf.PI);
+            _mainCamera.phi = DrawFloatSlider("Phi", _mainCamera.phi, 0, 2 * Mathf.PI);
+            GUI.enabled = true;
+            
             GUILayout.Space(10);
 
             // Solve parameters
