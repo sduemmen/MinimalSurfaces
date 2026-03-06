@@ -87,8 +87,6 @@ namespace Solver {
                     Vector3 x_j = meshData.vertices[j];
                     Vector3 r_ij = x_i - x_j;
 
-                    if (r_ij.magnitude > maxParticleInteractionDistance) continue;
-
                     float rp = Mathf.Pow(r_ij.magnitude, p);
                     float rq = Mathf.Pow(r_ij.magnitude, q);
                     F_i += (-(G / rp) + H / rq) * r_ij.normalized;
