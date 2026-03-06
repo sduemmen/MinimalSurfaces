@@ -277,7 +277,7 @@ MonoBehaviour:
   maxCameraDistance: 20
   minThetaDeg: 60
   maxThetaDeg: 120
-  theta: 1.5707964
+  theta: 2
   phi: 0
 --- !u!1 &410087039
 GameObject:
