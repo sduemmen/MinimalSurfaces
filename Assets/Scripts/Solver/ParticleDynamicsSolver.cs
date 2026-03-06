@@ -9,6 +9,7 @@ namespace Solver {
         public float H = 0.59f;
         public float p = 2f;
         public float q = 4f;
+        public float velocityDamping = 0.5f;
         public float maxParticleInteractionDistance = 1.311f;
         public float convergenceTolerance = 1e-05f;
 
@@ -47,7 +48,8 @@ namespace Solver {
                     _velocities[i] = Vector3.zero;
                     continue;
                 }
-
+                
+                _velocities[i] *= (1 - velocityDamping);
                 _velocities[i] += dt * _accelerations[i];
             }
 

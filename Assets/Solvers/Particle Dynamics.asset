@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Particle Dynamics
   m_EditorClassIdentifier: Assembly-CSharp::Solver.ParticleDynamicsSolver
   dt: 0.01
-  G: 0.03
-  H: 0.0024
+  G: 0.1
+  H: 0.0012
   p: 2
   q: 4
   maxParticleInteractionDistance: 1
