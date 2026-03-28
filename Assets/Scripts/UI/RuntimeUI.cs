@@ -10,6 +10,76 @@ namespace UI {
     public static class RuntimeUI {
         static readonly Dictionary<string, string> _textBuffer = new Dictionary<string, string>();
 
+        public static int DrawAssetList<T>(List<T> assets, int selected) where T : ScriptableObject {
+            if (assets == null || assets.Count == 0) return 0;
+
+            selected = Mathf.Clamp(selected, 0, assets.Count - 1);
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("<", GUILayout.Width(28f))) {
+                selected = (selected - 1 + assets.Count) % assets.Count;
+            }
+
+            string name = assets[selected] != null ? assets[selected].name : "(Missing)";
+            GUILayout.Label(name, GUILayout.ExpandWidth(true));
+
+            if (GUILayout.Button(">", GUILayout.Width(28f))) {
+                selected = (selected + 1) % assets.Count;
+            }
+
+            GUILayout.EndHorizontal();
+            return selected;
+        }
+
+        public static float DrawFloatSlider(string label, float value, float min, float max) {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label, GUILayout.Width(220f));
+
+            float next = GUILayout.HorizontalSlider(value, min, max, GUILayout.Width(180f));
+            GUILayout.Label(next.ToString("0.##"), GUILayout.Width(80f));
+
+            GUILayout.EndHorizontal();
+            return next;
+        }
+
+        public static MinimalSurface.SurfaceMaterialMode DrawMaterialSelector(MinimalSurface.SurfaceMaterialMode current) {
+            string[] names = Enum.GetNames(typeof(MinimalSurface.SurfaceMaterialMode));
+            int idx = Array.IndexOf(names, current.ToString());
+            int prevIdx = idx;
+
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("<", GUILayout.Width(28f))) {
+                idx = (idx - 1 + names.Length) % names.Length;
+            }
+
+            GUILayout.Label(names[Mathf.Clamp(idx, 0, names.Length - 1)], GUILayout.ExpandWidth(true));
+
+            if (GUILayout.Button(">", GUILayout.Width(28f))) {
+                idx = (idx + 1) % names.Length;
+            }
+
+            GUILayout.EndHorizontal();
+
+            if (idx != prevIdx) {
+                return (MinimalSurface.SurfaceMaterialMode)Enum.Parse(typeof(MinimalSurface.SurfaceMaterialMode), names[idx]);
+            }
+
+            return current;
+        }
+
+        public static int DrawIntSlider(string label, int value, int min, int max) {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label, GUILayout.Width(220f));
+
+            float nextF = GUILayout.HorizontalSlider(value, min, max, GUILayout.Width(180f));
+            int next = Mathf.Clamp(Mathf.RoundToInt(nextF), min, max);
+
+            GUILayout.Label(next.ToString(), GUILayout.Width(80f));
+            GUILayout.EndHorizontal();
+            return next;
+        }
+
         public static bool DrawObjectFields(object target) {
             if (target == null) return false;
 

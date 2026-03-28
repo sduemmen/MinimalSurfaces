@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Meshes;
+using System.IO;
 using Solver;
 using ThirdParty.StandaloneFileBrowser;
 using ThirdParty.Stl;
@@ -48,6 +49,49 @@ namespace UI {
             if (Keyboard.current.tKey.wasPressedThisFrame) {
                 shouldHideUI = !shouldHideUI;
             }
+
+            if (Keyboard.current.sKey.wasPressedThisFrame) {
+                CaptureScreenshot();
+            }
+        }
+
+        void CaptureScreenshot() {
+            Camera captureCamera = _mainCamera.GetComponent<Camera>();
+
+            string screenshotDir = Path.Combine(Application.dataPath, "Screenshots");
+            if (!Directory.Exists(screenshotDir)) {
+                Directory.CreateDirectory(screenshotDir);
+            }
+
+            string fileName = $"screenshot_{DateTime.Now:yyyyMMdd_HHmmssfff}.png";
+            string filePath = Path.Combine(screenshotDir, fileName);
+
+            const int width = 2160;
+            const int height = 2160;
+
+            RenderTexture rt = new RenderTexture(width, height, 24);
+            Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+
+            RenderTexture previousActive = RenderTexture.active;
+            RenderTexture previousTarget = captureCamera.targetTexture;
+
+            try {
+                captureCamera.targetTexture = rt;
+                captureCamera.Render();
+
+                RenderTexture.active = rt;
+                texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+                texture.Apply();
+
+                byte[] png = texture.EncodeToPNG();
+                File.WriteAllBytes(filePath, png);
+                Debug.Log($"Saved screenshot: {filePath}");
+            } finally {
+                captureCamera.targetTexture = previousTarget;
+                RenderTexture.active = previousActive;
+                Destroy(rt);
+                Destroy(texture);
+            }
         }
 
         void EnsureInstances() {
@@ -82,7 +126,7 @@ namespace UI {
 
             // Material
             GUILayout.Label("Material", GUI.skin.box);
-            MinimalSurface.SurfaceMaterialMode nextMaterial = DrawMaterialSelector(_surface.MaterialMode);
+            MinimalSurface.SurfaceMaterialMode nextMaterial = RuntimeUI.DrawMaterialSelector(_surface.MaterialMode);
             if (nextMaterial != _surface.MaterialMode) {
                 _surface.SetMaterialMode(nextMaterial);
             }
@@ -92,19 +136,19 @@ namespace UI {
             // Camera parameters
             GUILayout.Label("Camera", GUI.skin.box);
             _mainCamera.shouldRotate = GUILayout.Toggle(_mainCamera.shouldRotate, "Rotate Camera");
-            _mainCamera.cameraDistance = DrawFloatSlider("Camera Distance", _mainCamera.cameraDistance, _mainCamera.minCameraDistance, _mainCamera.maxCameraDistance);
+            _mainCamera.cameraDistance = RuntimeUI.DrawFloatSlider("Camera Distance", _mainCamera.cameraDistance, _mainCamera.minCameraDistance, _mainCamera.maxCameraDistance);
 
             GUI.enabled = !_mainCamera.shouldRotate;
-            _mainCamera.theta = DrawFloatSlider("Theta", _mainCamera.theta, 0, Mathf.PI);
-            _mainCamera.phi = DrawFloatSlider("Phi", _mainCamera.phi, 0, 2 * Mathf.PI);
+            _mainCamera.theta = RuntimeUI.DrawFloatSlider("Theta", _mainCamera.theta, 0, Mathf.PI);
+            _mainCamera.phi = RuntimeUI.DrawFloatSlider("Phi", _mainCamera.phi, 0, 2 * Mathf.PI);
             GUI.enabled = true;
             
             GUILayout.Space(10);
 
             // Solve parameters
             GUILayout.Label("Solve Parameters", GUI.skin.box);
-            _surface.stepsPerSecond = DrawIntSlider("Steps per Second", _surface.stepsPerSecond, _surface.minStepsPerSecond, _surface.maxStepsPerSecond);
-            _surface.maxSteps = DrawIntSlider("Max Steps", _surface.maxSteps, _surface.minMaxSteps, _surface.maxMaxSteps);
+            _surface.stepsPerSecond = RuntimeUI.DrawIntSlider("Steps per Second", _surface.stepsPerSecond, _surface.minStepsPerSecond, _surface.maxStepsPerSecond);
+            _surface.maxSteps = RuntimeUI.DrawIntSlider("Max Steps", _surface.maxSteps, _surface.minMaxSteps, _surface.maxMaxSteps);
 
             GUILayout.Space(10);
 
@@ -113,7 +157,7 @@ namespace UI {
             GUILayout.BeginHorizontal(GUI.skin.box);
             GUILayout.Label("Mesh Generator:", GUILayout.Width(120f));
             int prevGenerator = _selectedGeneratorIdx;
-            _selectedGeneratorIdx = DrawAssetList(_generators, _selectedGeneratorIdx);
+            _selectedGeneratorIdx = RuntimeUI.DrawAssetList(_generators, _selectedGeneratorIdx);
             bool generatorChanged = _selectedGeneratorIdx != prevGenerator;
             GUILayout.EndHorizontal();
 
@@ -139,7 +183,7 @@ namespace UI {
             GUILayout.BeginHorizontal(GUI.skin.box);
             GUILayout.Label("Solver:", GUILayout.Width(120f));
             int prevSolver = _selectedSolverIdx;
-            _selectedSolverIdx = DrawAssetList(_solvers, _selectedSolverIdx);
+            _selectedSolverIdx = RuntimeUI.DrawAssetList(_solvers, _selectedSolverIdx);
             bool solverChanged = _selectedSolverIdx != prevSolver;
             GUILayout.EndHorizontal();
             RuntimeUI.DrawObjectFields(_solver);
@@ -160,77 +204,6 @@ namespace UI {
             DrawControlButtons();
 
             GUILayout.EndArea();
-        }
-
-        int DrawAssetList<T>(List<T> assets, int selected) where T : ScriptableObject {
-            if (assets == null || assets.Count == 0) return 0;
-
-            selected = Mathf.Clamp(selected, 0, assets.Count - 1);
-
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("<", GUILayout.Width(28f))) {
-                selected = (selected - 1 + assets.Count) % assets.Count;
-            }
-
-            string name = assets[selected] != null ? assets[selected].name : "(Missing)";
-            GUILayout.Label(name, GUILayout.ExpandWidth(true));
-
-            if (GUILayout.Button(">", GUILayout.Width(28f))) {
-                selected = (selected + 1) % assets.Count;
-            }
-
-            GUILayout.EndHorizontal();
-
-            return selected;
-        }
-
-        float DrawFloatSlider(string label, float value, float min, float max) {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.Width(220f));
-
-            float next = GUILayout.HorizontalSlider(value, min, max, GUILayout.Width(180f));
-            GUILayout.Label(next.ToString("0.##"), GUILayout.Width(80f));
-
-            GUILayout.EndHorizontal();
-            return next;
-        }
-
-        MinimalSurface.SurfaceMaterialMode DrawMaterialSelector(MinimalSurface.SurfaceMaterialMode current) {
-            string[] names = Enum.GetNames(typeof(MinimalSurface.SurfaceMaterialMode));
-            int idx = Array.IndexOf(names, current.ToString());
-            int prevIdx = idx;
-
-            GUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("<", GUILayout.Width(28f))) {
-                idx = (idx - 1 + names.Length) % names.Length;
-            }
-
-            GUILayout.Label(names[Mathf.Clamp(idx, 0, names.Length - 1)], GUILayout.ExpandWidth(true));
-
-            if (GUILayout.Button(">", GUILayout.Width(28f))) {
-                idx = (idx + 1) % names.Length;
-            }
-
-            GUILayout.EndHorizontal();
-
-            if (idx != prevIdx) {
-                return (MinimalSurface.SurfaceMaterialMode)Enum.Parse(typeof(MinimalSurface.SurfaceMaterialMode), names[idx]);
-            }
-
-            return current;
-        }
-
-        int DrawIntSlider(string label, int value, int min, int max) {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.Width(220f));
-
-            float nextF = GUILayout.HorizontalSlider(value, min, max, GUILayout.Width(180f));
-            int next = Mathf.Clamp(Mathf.RoundToInt(nextF), min, max);
-
-            GUILayout.Label(next.ToString(), GUILayout.Width(80f));
-            GUILayout.EndHorizontal();
-            return next;
         }
 
         void DrawControlButtons() {
