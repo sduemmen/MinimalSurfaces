@@ -97,3 +97,9 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Project-local generated/debug folders
+/Assets/_Recovery/
+/Assets/_Recovery.meta
+/Assets/Screenshots/
+/Assets/Screenshots.meta
