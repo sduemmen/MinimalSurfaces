@@ -12,7 +12,7 @@ namespace Meshes {
         public override MeshData Generate() {
             if (string.IsNullOrEmpty(FilePath)) return null;
 
-            Mesh mesh = Importer.Import(FilePath, CoordinateSpace.Left)[0];
+            Mesh mesh = Importer.Import(FilePath, CoordinateSpace.Right)[0];
 
             Vector3[] importedVertices = mesh.vertices;
             int[] importedTriangles = mesh.triangles;
