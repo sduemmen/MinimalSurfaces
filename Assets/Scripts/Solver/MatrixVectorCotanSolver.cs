@@ -10,45 +10,58 @@ namespace Solver {
 
         Matrix<float> invM;
         Matrix<float> L;
+        Matrix<float> W;
+        
+        Vector<float> xs;
+        Vector<float> ys;
+        Vector<float> zs;
+        Vector<float> dx;
+        Vector<float> dy;
+        Vector<float> dz;
+        
 
         public override void Initialize(MeshData meshData, MinimalSurface context) {
-            return;
+            BuildLaplaceMatrix(meshData);
+            
+            int n = meshData.vertices.Length;
+            xs = Vector<float>.Build.Dense(n);
+            ys = Vector<float>.Build.Dense(n);
+            zs = Vector<float>.Build.Dense(n);
+            dx = Vector<float>.Build.Dense(n);
+            dy = Vector<float>.Build.Dense(n);
+            dz = Vector<float>.Build.Dense(n);
         }
 
         public override bool Step(MeshData meshData, MinimalSurface context) {
-            int vertexCount = meshData.vertices.Length;
-            invM = Matrix<float>.Build.Sparse(vertexCount, vertexCount);
-            L = Matrix<float>.Build.Sparse(vertexCount, vertexCount);
-
-            BuildMatrices(meshData);
+            BuildLaplaceMatrix(meshData);
             
-            Vector<float> x = Vector<float>.Build.Dense(vertexCount);
-            Vector<float> y = Vector<float>.Build.Dense(vertexCount);
-            Vector<float> z = Vector<float>.Build.Dense(vertexCount);
+            int n = meshData.vertices.Length;
 
-            for (int i = 0; i < vertexCount; i++) {
+            for (int i = 0; i < n; i++) {
                 Vector3 v = meshData.vertices[i];
-                x[i] = v.x;
-                y[i] = v.y;
-                z[i] = v.z;
+                xs[i] = v.x;
+                ys[i] = v.y;
+                zs[i] = v.z;
             }
+            
+            Matrix<float> L = invM * W;
 
-            Vector<float> dx = invM * L * x;
-            Vector<float> dy = invM * L * y;
-            Vector<float> dz = invM * L * z;
-
+            L.Multiply(xs, dx);
+            L.Multiply(ys, dy);
+            L.Multiply(zs, dz);
+            
             float maxGrad = 0f;
-            for (int p = 0; p < vertexCount; p++) {
-                if (meshData.fixedVertices[p]) continue;
+            for (int i = 0; i < n; i++) {
+                if (meshData.fixedVertices[i]) continue;
 
-                Vector3 displacement = new Vector3(dx[p], dy[p], dz[p]);
+                Vector3 displacement = new Vector3(dx[i], dy[i], dz[i]);
 
                 float d = Mathf.Sqrt(Vector3.Dot(displacement, displacement));
                 if (d > maxGrad) {
                     maxGrad = d;
                 }
 
-                meshData.vertices[p] -= dt * displacement;
+                meshData.vertices[i] += dt * displacement;
             }
 
             meshData.mesh.SetVertices(meshData.vertices);
@@ -59,38 +72,54 @@ namespace Solver {
         void BuildMatrices(MeshData meshData) {
             for (int p = 0; p < meshData.vertices.Length; p++) {
                 if (meshData.fixedVertices[p]) continue;
+        void BuildLaplaceMatrix(MeshData meshData) {
+            int n = meshData.vertices.Length;
+            invM = Matrix<float>.Build.Sparse(n, n);
+            W = Matrix<float>.Build.Sparse(n, n);
+            
+            
+            for (int i = 0; i < meshData.vertices.Length; i++) {
+                if (meshData.fixedVertices[i]) continue;
 
-                float Ap = 0f;
+                float A_i = 0f;
 
-                foreach ((int a, int b) in meshData.triangleNeighborPairsByVertex[p]) {
-                    Vector3 ab = meshData.vertices[a] - meshData.vertices[b];
-                    Vector3 pa = meshData.vertices[p] - meshData.vertices[a];
-                    Vector3 pb = meshData.vertices[p] - meshData.vertices[b];
-                    Vector3 abxpb = Vector3.Cross(ab, pb);
-                    float A = Mathf.Sqrt(Vector3.Dot(abxpb, abxpb));
+                foreach ((int a, int b) in meshData.triangleNeighborPairsByVertex[i]) {
+                    Vector3 x_i = meshData.vertices[i];
+                    Vector3 x_a = meshData.vertices[a];
+                    Vector3 x_b = meshData.vertices[b];
+                    Vector3 ba = x_a - x_b;
+                    Vector3 ai = x_i - x_a;
+                    Vector3 bi = x_i - x_b;
+                    float A = 0.5f * Vector3.Cross(ba, bi).magnitude;
 
-                    if (A < 1e-04f) continue;
+                    if (A < 1e-03f) continue;
 
-                    float cota = Vector3.Dot(ab, pb) / A;
-                    float cotb = -Vector3.Dot(ab, pa) / A;
+                    float cot_alpha = CotanBetween(ai, -ba);
+                    float cot_beta = CotanBetween(bi, ba);
 
-                    L[p, p] += cota + cotb;
-                    L[p, a] += -cotb;
-                    L[p, b] += -cota;
+                    W[i, i] -= cot_alpha + cot_beta;
+                    W[i, a] += cot_beta;
+                    W[i, b] += cot_alpha;
+                    
+                    bool obtuseAtI = Vector3.Dot(ai, bi) < 0;
+                    bool obtuseAtA = Vector3.Dot(ai, -ba) < 0;
+                    bool obtuseAtB = Vector3.Dot(bi, ba) < 0;
 
-                    if (Vector3.Dot(pa, pb) > 0) {
-                        if (cota > 0 && cotb > 0) {
-                            Ap += (cota * Vector3.Dot(pb, pb) + cotb * Vector3.Dot(pa, pa)) / 8;
-                        } else {
-                            Ap += 0.25f * A;
-                        }
+                    if (obtuseAtI) {
+                        A_i += 0.5f * A;
+                    } else if (obtuseAtA || obtuseAtB) {
+                        A_i += 0.25f * A;
                     } else {
-                        Ap += 0.5f * A;
+                        A_i += (cot_beta * ai.sqrMagnitude + cot_alpha * bi.sqrMagnitude) / 8;
                     }
                 }
 
-                invM[p, p] = 1f / Ap;
+                invM[i, i] = 1f / (2f * A_i);
             }
+        }
+        
+        float CotanBetween(Vector3 u, Vector3 v) {
+            return Vector3.Dot(u, v) / Vector3.Cross(u, v).magnitude;
         }
     }
 }
