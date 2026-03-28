@@ -1,3 +1,4 @@
+using System;
 using Meshes;
 using MathNet.Numerics.LinearAlgebra;
 using UnityEngine;
@@ -9,7 +10,6 @@ namespace Solver {
         public float convergenceTolerance = 0.015f;
 
         Matrix<float> invM;
-        Matrix<float> L;
         Matrix<float> W;
         
         Vector<float> xs;
@@ -19,6 +19,8 @@ namespace Solver {
         Vector<float> dy;
         Vector<float> dz;
         
+        [SerializeField] Gradient meanCurvatureColorGradient;
+
 
         public override void Initialize(MeshData meshData, MinimalSurface context) {
             BuildLaplaceMatrix(meshData);
@@ -66,12 +68,32 @@ namespace Solver {
 
             meshData.mesh.SetVertices(meshData.vertices);
             meshData.mesh.RecalculateNormals();
+            ColorByMeanCurvature(meshData);
             return maxGrad < convergenceTolerance;
         }
 
-        void BuildMatrices(MeshData meshData) {
-            for (int p = 0; p < meshData.vertices.Length; p++) {
-                if (meshData.fixedVertices[p]) continue;
+        void ColorByMeanCurvature(MeshData meshData) {
+            int n = meshData.vertices.Length;
+            float[] H = new float[n];
+            Color[] colors = new Color[n];
+            Vector3[] normals = meshData.mesh.normals;
+
+            float maxAbs = 0f;
+            for (int i = 0; i < n; i++) {
+                H[i] = 0.5f * Vector3.Dot(new Vector3(dx[i], dy[i], dz[i]), normals[i]);
+                maxAbs = Mathf.Max(maxAbs, Mathf.Abs(H[i]));
+            }
+            
+            maxAbs = Mathf.Max(maxAbs, 1e-05f);
+
+            for (int i = 0; i < n; i++) {
+                float t = 0.5f + 0.5f * H[i] / maxAbs;
+                colors[i] = meanCurvatureColorGradient.Evaluate(t);
+            }
+            
+            meshData.mesh.SetColors(colors);
+        }
+
         void BuildLaplaceMatrix(MeshData meshData) {
             int n = meshData.vertices.Length;
             invM = Matrix<float>.Build.Sparse(n, n);
