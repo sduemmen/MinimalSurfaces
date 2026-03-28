@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿﻿using System.Collections;
 using Meshes;
 using Solver;
 using UnityEngine;
@@ -6,8 +6,9 @@ using UnityEngine;
 public class MinimalSurface : MonoBehaviour {
     public enum SurfaceMaterialMode {
         Shaded,
-        ShadedWireframe,
+        UnlitWireframe,
         Wireframe,
+        MeanCurvature,
         Soap
     }
 
@@ -15,9 +16,10 @@ public class MinimalSurface : MonoBehaviour {
     [SerializeField] MeshRenderer _meshRenderer;
     [SerializeField] Material _shadedMaterial;
     [SerializeField] Material _wireframeMaterial;
-    [SerializeField] Material _shadedWireframeMaterial;
+    [SerializeField] Material _unlitWireframeMaterial;
+    [SerializeField] Material _meanCurvatureMaterial;
     [SerializeField] Material _soapMaterial;
-    [SerializeField] SurfaceMaterialMode _materialMode = SurfaceMaterialMode.ShadedWireframe;
+    [SerializeField] SurfaceMaterialMode _materialMode = SurfaceMaterialMode.UnlitWireframe;
 
     public int stepsPerSecond = 60;
     public int maxSteps = 5000;
@@ -172,10 +174,12 @@ public class MinimalSurface : MonoBehaviour {
         switch (mode) {
             case SurfaceMaterialMode.Wireframe:
                 return _wireframeMaterial;
-            case SurfaceMaterialMode.ShadedWireframe:
-                return _shadedWireframeMaterial;
+            case SurfaceMaterialMode.UnlitWireframe:
+                return _unlitWireframeMaterial;
             case SurfaceMaterialMode.Soap:
                 return _soapMaterial;
+            case SurfaceMaterialMode.MeanCurvature:
+                return _meanCurvatureMaterial;
             case SurfaceMaterialMode.Shaded:
             default:
                 return _shadedMaterial;
