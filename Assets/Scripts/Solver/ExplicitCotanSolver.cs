@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Solver {
     [CreateAssetMenu(menuName = "Minimal Surfaces/Solvers/Matrix Vector Cotan")]
-    public class MatrixVectorCotanSolver : MinimalSurfaceSolverBase {
+    public class ExplicitCotanSolver : MinimalSurfaceSolverBase {
         public float dt = 0.0005f;
         public float convergenceTolerance = 0.015f;
 
