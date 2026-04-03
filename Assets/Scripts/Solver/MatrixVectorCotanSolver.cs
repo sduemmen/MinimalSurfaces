@@ -57,11 +57,7 @@ namespace Solver {
                 if (meshData.fixedVertices[i]) continue;
 
                 Vector3 displacement = new Vector3(dx[i], dy[i], dz[i]);
-
-                float d = Mathf.Sqrt(Vector3.Dot(displacement, displacement));
-                if (d > maxGrad) {
-                    maxGrad = d;
-                }
+                maxGrad = Mathf.Max(maxGrad, displacement.magnitude);
 
                 meshData.vertices[i] += dt * displacement;
             }
@@ -136,6 +132,7 @@ namespace Solver {
                     }
                 }
 
+                if (A_i < 1e-03f) continue;
                 invM[i, i] = 1f / (2f * A_i);
             }
         }
