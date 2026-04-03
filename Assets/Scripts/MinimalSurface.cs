@@ -5,21 +5,21 @@ using UnityEngine;
 
 public class MinimalSurface : MonoBehaviour {
     public enum SurfaceMaterialMode {
-        Shaded,
-        UnlitWireframe,
-        Wireframe,
+        Lit,
+        Unlit,
         MeanCurvature,
         Soap
     }
 
     [SerializeField] MeshFilter _meshFilter;
     [SerializeField] MeshRenderer _meshRenderer;
-    [SerializeField] Material _shadedMaterial;
-    [SerializeField] Material _wireframeMaterial;
-    [SerializeField] Material _unlitWireframeMaterial;
+    [SerializeField] Material _litMaterial;
+    [SerializeField] Material _unlitMaterial;
     [SerializeField] Material _meanCurvatureMaterial;
     [SerializeField] Material _soapMaterial;
-    [SerializeField] SurfaceMaterialMode _materialMode = SurfaceMaterialMode.UnlitWireframe;
+    [SerializeField] Material _wireframeMaterial;
+    [SerializeField] SurfaceMaterialMode _materialMode = SurfaceMaterialMode.MeanCurvature;
+    public bool showWireframe = true;
 
     public int stepsPerSecond = 60;
     public int maxSteps = 5000;
@@ -163,26 +163,28 @@ public class MinimalSurface : MonoBehaviour {
 
     void ApplyMaterial() {
         if (_meshRenderer == null) return;
-
-        Material targetMaterial = GetMaterialForMode(_materialMode);
-        if (targetMaterial != null && _meshRenderer.sharedMaterial != targetMaterial) {
-            _meshRenderer.sharedMaterial = targetMaterial;
-        }
+        _meshRenderer.materials = BuildMaterialArrayFromCurrentMaterial();
     }
 
-    Material GetMaterialForMode(SurfaceMaterialMode mode) {
-        switch (mode) {
-            case SurfaceMaterialMode.Wireframe:
-                return _wireframeMaterial;
-            case SurfaceMaterialMode.UnlitWireframe:
-                return _unlitWireframeMaterial;
+    Material[] BuildMaterialArrayFromCurrentMaterial() {
+        Material[] materials = showWireframe 
+            ? new[] {GetCurrentMaterial(), _wireframeMaterial}
+            : new[] {GetCurrentMaterial()};
+        return materials;
+    }
+    
+    Material GetCurrentMaterial() {
+        switch (_materialMode) {
+            case SurfaceMaterialMode.Lit:
+                return _litMaterial;
+            case SurfaceMaterialMode.Unlit:
+                return _unlitMaterial;
             case SurfaceMaterialMode.Soap:
                 return _soapMaterial;
             case SurfaceMaterialMode.MeanCurvature:
                 return _meanCurvatureMaterial;
-            case SurfaceMaterialMode.Shaded:
             default:
-                return _shadedMaterial;
+                return _unlitMaterial;
         }
     }
 }

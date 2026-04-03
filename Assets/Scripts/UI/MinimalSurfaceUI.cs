@@ -127,7 +127,9 @@ namespace UI {
             // Material
             GUILayout.Label("Material", GUI.skin.box);
             MinimalSurface.SurfaceMaterialMode nextMaterial = RuntimeUI.DrawMaterialSelector(_surface.MaterialMode);
-            if (nextMaterial != _surface.MaterialMode) {
+            bool oldShowWireframe = _surface.showWireframe;
+            _surface.showWireframe = GUILayout.Toggle(_surface.showWireframe, "Show Wireframe");
+            if (nextMaterial != _surface.MaterialMode || oldShowWireframe != _surface.showWireframe) {
                 _surface.SetMaterialMode(nextMaterial);
             }
 
