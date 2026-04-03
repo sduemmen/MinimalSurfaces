@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97a0998c14d04ce386b2aa486371c29e, type: 3}
-  m_Name: Laplacian Smoothing Matrix Solver
+  m_Name: Laplacian Smoothing
   m_EditorClassIdentifier: Assembly-CSharp::Solver.LaplacianSmoothingMatrixSolver
   dt: 1
   convergenceTolerance: 0.00001
