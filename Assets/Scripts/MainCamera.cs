@@ -18,7 +18,7 @@ public class MainCamera : MonoBehaviour {
     void Update() {
         if (shouldRotate) {
             float t = (Mathf.Sin(Time.time * rotationSpeed) + 1) * 0.5f;
-            RotateCamera(thetaRad: Mathf.Lerp(minThetaDeg * Mathf.Deg2Rad, maxThetaDeg * Mathf.Deg2Rad, t), phiRad: Time.time * rotationSpeed);
+            RotateCamera(Mathf.Lerp(minThetaDeg * Mathf.Deg2Rad, maxThetaDeg * Mathf.Deg2Rad, t), Time.time * rotationSpeed);
         } else {
             RotateCamera(theta, phi);
         }
