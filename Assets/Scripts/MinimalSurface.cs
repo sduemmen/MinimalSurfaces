@@ -1,4 +1,4 @@
-﻿﻿using System.Collections;
+﻿using System.Collections;
 using Meshes;
 using Solver;
 using UnityEngine;
@@ -18,7 +18,7 @@ public class MinimalSurface : MonoBehaviour {
     [SerializeField] Material _meanCurvatureMaterial;
     [SerializeField] Material _soapMaterial;
     [SerializeField] Material _wireframeMaterial;
-    [SerializeField] SurfaceMaterialMode _materialMode = SurfaceMaterialMode.MeanCurvature;
+    [SerializeField] public SurfaceMaterialMode materialMode = SurfaceMaterialMode.MeanCurvature;
     public bool showWireframe = true;
 
     public int stepsPerSecond = 60;
@@ -61,12 +61,16 @@ public class MinimalSurface : MonoBehaviour {
         get => _currentSolveRoutine != null;
     }
 
+    public MeshData CurrentMeshData {
+        get => _currentMeshData;
+    }
+
     public Mesh CurrentMesh {
         get => _currentMeshData?.mesh;
     }
 
     public SurfaceMaterialMode MaterialMode {
-        get => _materialMode;
+        get => materialMode;
         set => SetMaterialMode(value);
     }
 
@@ -157,24 +161,25 @@ public class MinimalSurface : MonoBehaviour {
     }
 
     public void SetMaterialMode(SurfaceMaterialMode mode) {
-        _materialMode = mode;
+        materialMode = mode;
         ApplyMaterial();
     }
 
     void ApplyMaterial() {
         if (_meshRenderer == null) return;
+
         _meshRenderer.materials = BuildMaterialArrayFromCurrentMaterial();
     }
 
     Material[] BuildMaterialArrayFromCurrentMaterial() {
-        Material[] materials = showWireframe 
-            ? new[] {GetCurrentMaterial(), _wireframeMaterial}
-            : new[] {GetCurrentMaterial()};
+        Material[] materials = showWireframe
+            ? new[] { GetCurrentMaterial(), _wireframeMaterial }
+            : new[] { GetCurrentMaterial() };
         return materials;
     }
-    
+
     Material GetCurrentMaterial() {
-        switch (_materialMode) {
+        switch (materialMode) {
             case SurfaceMaterialMode.Lit:
                 return _litMaterial;
             case SurfaceMaterialMode.Unlit:

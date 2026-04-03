@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Meshes;
+﻿using Meshes;
 
 namespace Solver {
     public interface IMinimalSurfaceSolver {

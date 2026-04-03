@@ -8,9 +8,9 @@ namespace Solver {
     public class LaplacianSmoothingSolver : MinimalSurfaceSolverBase {
         public float dt = 1f;
         public float convergenceTolerance = 1e-05f;
-        
+
         Matrix<float> L;
-        
+
         Vector<float> xs;
         Vector<float> ys;
         Vector<float> zs;
@@ -21,7 +21,7 @@ namespace Solver {
 
         public override void Initialize(MeshData meshData, MinimalSurface context) {
             BuildLaplaceMatrix(meshData);
-            
+
             int n = meshData.vertices.Length;
             xs = Vector<float>.Build.Dense(n);
             ys = Vector<float>.Build.Dense(n);
@@ -39,7 +39,7 @@ namespace Solver {
                 ys[i] = v.y;
                 zs[i] = v.z;
             }
-            
+
             L.Multiply(xs, dx);
             L.Multiply(ys, dy);
             L.Multiply(zs, dz);
@@ -58,20 +58,18 @@ namespace Solver {
                 meshData.vertices[i] += dt * displacement;
             }
 
-            meshData.mesh.SetVertices(meshData.vertices);
-            meshData.mesh.RecalculateNormals();
-            
+            UpdateMesh(meshData, context);
             return maxGrad < convergenceTolerance;
         }
 
         void BuildLaplaceMatrix(MeshData meshData) {
             int n = meshData.vertices.Length;
             L = Matrix<float>.Build.Sparse(n, n);
-            
+
             for (int i = 0; i < meshData.vertices.Length; i++) {
                 HashSet<int> neighbors = meshData.neighbors[i];
                 if (meshData.fixedVertices[i] || neighbors.Count == 0) continue;
-                
+
                 L[i, i] = -1f;
                 foreach (int j in neighbors) {
                     L[i, j] = 1f / neighbors.Count;

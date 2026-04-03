@@ -48,8 +48,8 @@ namespace Solver {
                     _velocities[i] = Vector3.zero;
                     continue;
                 }
-                
-                _velocities[i] *= (1 - velocityDamping);
+
+                _velocities[i] *= 1 - velocityDamping;
                 _velocities[i] += dt * _accelerations[i];
             }
 
@@ -67,9 +67,7 @@ namespace Solver {
                 }
             }
 
-            meshData.mesh.SetVertices(meshData.vertices);
-            meshData.mesh.RecalculateNormals();
-
+            UpdateMesh(meshData, context);
             return maxGrad < convergenceTolerance;
         }
 

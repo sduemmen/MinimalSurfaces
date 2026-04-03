@@ -18,7 +18,7 @@ namespace UI {
 
         [SerializeField] Rect _panelRect = new Rect(12, 12, 520, 1080);
         [SerializeField] KeyCode _toggleUIKey = KeyCode.T;
-        
+
         bool shouldHideUI = false;
 
         int _selectedGeneratorIdx;
@@ -43,6 +43,9 @@ namespace UI {
 
         void Start() {
             _surface.GenerateMesh(_generator);
+            if (_surface.materialMode == MinimalSurface.SurfaceMaterialMode.MeanCurvature) {
+                _surface.CurrentMeshData.ColorVerticesByMeanCurvature();
+            }
         }
 
         void Update() {
@@ -118,7 +121,7 @@ namespace UI {
 
         void OnGUI() {
             if (shouldHideUI) return;
-            
+
             GUILayout.BeginArea(_panelRect, GUI.skin.window);
             _scroll = GUILayout.BeginScrollView(_scroll);
 
@@ -131,6 +134,10 @@ namespace UI {
             _surface.showWireframe = GUILayout.Toggle(_surface.showWireframe, "Show Wireframe");
             if (nextMaterial != _surface.MaterialMode || oldShowWireframe != _surface.showWireframe) {
                 _surface.SetMaterialMode(nextMaterial);
+
+                if (_surface.materialMode == MinimalSurface.SurfaceMaterialMode.MeanCurvature) {
+                    _surface.CurrentMeshData.ColorVerticesByMeanCurvature();
+                }
             }
 
             GUILayout.Space(10);
@@ -144,7 +151,7 @@ namespace UI {
             _mainCamera.theta = RuntimeUI.DrawFloatSlider("Theta", _mainCamera.theta, 0, Mathf.PI);
             _mainCamera.phi = RuntimeUI.DrawFloatSlider("Phi", _mainCamera.phi, 0, 2 * Mathf.PI);
             GUI.enabled = true;
-            
+
             GUILayout.Space(10);
 
             // Solve parameters
@@ -215,6 +222,10 @@ namespace UI {
             if (GUILayout.Button("Generate Mesh", GUILayout.Height(32f))) {
                 EnsureInstances();
                 _surface.GenerateMesh(_generator);
+
+                if (_surface.materialMode == MinimalSurface.SurfaceMaterialMode.MeanCurvature) {
+                    _surface.CurrentMeshData.ColorVerticesByMeanCurvature();
+                }
             }
 
             if (GUILayout.Button("Solve", GUILayout.Height(32f))) {
