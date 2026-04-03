@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a3483d3c3bc48219430f4bad15711ac, type: 3}
   m_Name: Implicit Cotan
   m_EditorClassIdentifier: Assembly-CSharp::Solver.ImplicitCotanSolver
-  dt: 0.001
-  convergenceTolerance: 0.015
+  dt: 0.1
+  convergenceTolerance: 0.000015
   meanCurvatureColorGradient:
     serializedVersion: 2
     key0: {r: 0, g: 0, b: 1, a: 1}
