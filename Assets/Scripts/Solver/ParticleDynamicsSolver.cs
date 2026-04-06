@@ -18,6 +18,7 @@ namespace Solver {
 
 
         public override void Initialize(MeshData meshData, MinimalSurface context) {
+            base.Initialize(meshData, context);
             _velocities = new Vector3[meshData.vertices.Length];
             _accelerations = new Vector3[meshData.vertices.Length];
 

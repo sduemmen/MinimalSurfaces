@@ -20,6 +20,7 @@ namespace Solver {
 
 
         public override void Initialize(MeshData meshData, MinimalSurface context) {
+            base.Initialize(meshData, context);
             BuildLaplaceMatrix(meshData);
 
             int n = meshData.vertices.Length;

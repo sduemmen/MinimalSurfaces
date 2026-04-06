@@ -17,6 +17,7 @@ namespace Solver {
 
 
         public override void Initialize(MeshData meshData, MinimalSurface context) {
+            base.Initialize(meshData, context);
             int n = meshData.vertices.Length;
             x0 = Vector<float>.Build.Dense(n);
             y0 = Vector<float>.Build.Dense(n);
