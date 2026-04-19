@@ -1,7 +1,6 @@
 # MinimalSurfaces
 
-MinimalSurfaces is a Unity-based program for the numerical computation and visualization of minimal surfaces on triangle meshes.  
-It provides several mesh generators and solvers to compare different numerical approaches for surface minimization in an interactive way.
+MinimalSurfaces is a Unity-based program for the numerical computation and visualization of minimal surfaces on triangle meshes. It provides several mesh generators and solvers to compare different numerical approaches for surface minimization in an interactive way.
 
 ## Screenshot
 
