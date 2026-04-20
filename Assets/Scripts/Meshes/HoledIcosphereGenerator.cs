@@ -1,26 +1,65 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Meshes {
+    /// <summary>
+    /// Generates an icosphere with holes.
+    /// </summary>
     [CreateAssetMenu(menuName = "Minimal Surfaces/Generators/Holed Icosphere")]
     public class HoledIcosphereGenerator : MeshGeneratorBase {
+        /// <summary>
+        /// Strategy used to place hole centers on the sphere.
+        /// </summary>
         public enum HoleLayout {
+            /// <summary>
+            /// Samples hole centers independently on the unit sphere.
+            /// </summary>
             Random,
+
+            /// <summary>
+            /// Distributes hole centers uniformly on the XZ-plane.
+            /// </summary>
             XZ_Plane
         }
 
+        /// <summary>
+        /// Radius of the initial icosphere before hole carving.
+        /// </summary>
         [Header("Sphere Settings")] public float initialSphereRadius = 1f;
+
+        /// <summary>
+        /// Number of icosphere subdivision passes.
+        /// </summary>
         public int subdivisions = 5;
+
+        /// <summary>
+        /// Sphere center used for analytic boundary realignment.
+        /// </summary>
         public Vector3 sphereCenter;
 
+        /// <summary>
+        /// Placement mode for hole centers.
+        /// </summary>
         [Header("Holes")] public HoleLayout holeLayout = HoleLayout.Random;
+
+        /// <summary>
+        /// Number of holes to carve.
+        /// </summary>
         public int holeCount = 2;
+
+        /// <summary>
+        /// Radius used for vertex removal around each hole center.
+        /// </summary>
         public float holeRadius = 0.1f;
 
         const float TAU = Mathf.PI * 2f;
 
+        /// <summary>
+        /// Builds the holed sphere.
+        /// </summary>
+        /// <returns>Generated mesh data.</returns>
         public override MeshData Generate() {
             Mesh mesh = IcoSphere.Create(initialSphereRadius, subdivisions);
 
@@ -37,6 +76,10 @@ namespace Meshes {
             return new MeshData(mesh, mesh.vertices, mesh.triangles, neighbors, adjacency, fixedVertices);
         }
 
+        /// <summary>
+        /// Computes hole center positions according to <see cref="holeLayout"/>.
+        /// </summary>
+        /// <returns>Hole center positions in mesh-local space.</returns>
         List<Vector3> ComputeHolePositions() {
             List<Vector3> positions = new List<Vector3>();
             switch (holeLayout) {
@@ -60,6 +103,14 @@ namespace Meshes {
             return positions;
         }
 
+        /// <summary>
+        /// Removes vertices inside the hole radius.
+        /// </summary>
+        /// <param name="mesh">Input mesh.</param>
+        /// <param name="holePositions">Hole center positions.</param>
+        /// <param name="radius">Removal radius around each hole center.</param>
+        /// <param name="remainingVertices">Resulting compact vertex list.</param>
+        /// <param name="remainingTriangles">Resulting remapped triangle index buffer.</param>
         void RemoveVerticesNearHoles(Mesh mesh, List<Vector3> holePositions, float radius, out List<Vector3> remainingVertices, out int[] remainingTriangles) {
             if (holePositions == null || holePositions.Count == 0) {
                 remainingVertices = new List<Vector3>(mesh.vertices);
@@ -72,7 +123,7 @@ namespace Meshes {
             bool[] removeVertex = new bool[vertices.Length];
 
             for (int i = 0; i < vertices.Length; i++) {
-                Vector3 worldPos = vertices[i]; // mesh is generated in local space
+                Vector3 worldPos = vertices[i];
                 foreach (Vector3 hole in holePositions) {
                     if (Vector3.Distance(worldPos, hole) <= radius) {
                         removeVertex[i] = true;
@@ -81,6 +132,7 @@ namespace Meshes {
                 }
             }
 
+            // only keep triangles which are not marked as removed
             List<int> newTriangles = new List<int>();
             for (int i = 0; i < triangles.Length; i += 3) {
                 int a = triangles[i];
@@ -93,6 +145,7 @@ namespace Meshes {
                 newTriangles.Add(c);
             }
 
+            // remap triangle indices
             Dictionary<int, int> vertexMap = new Dictionary<int, int>();
             remainingVertices = new List<Vector3>();
             for (int i = 0; i < newTriangles.Count; i++) {
@@ -109,6 +162,16 @@ namespace Meshes {
             remainingTriangles = newTriangles.ToArray();
         }
 
+        /// <summary>
+        /// Projects fixed boundary vertices onto analytic hole circles on the sphere.
+        /// </summary>
+        /// <remarks>
+        /// The boundary curve is obtained from the circle of intersection between the base sphere
+        /// and the sphere centered at the chosen hole center with radius <see cref="holeRadius"/>.
+        /// </remarks>
+        /// <param name="holePositions">Hole center positions.</param>
+        /// <param name="vertices">Vertex buffer.</param>
+        /// <param name="fixedVertices">Fixed/Boundary vertices.</param>
         void AlignFixedVerticesToHoles(List<Vector3> holePositions, List<Vector3> vertices, bool[] fixedVertices) {
             if (holePositions == null || holePositions.Count == 0) {
                 return;

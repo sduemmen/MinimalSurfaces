@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -86,7 +86,11 @@ namespace UI {
             bool changedAny = false;
 
             Type type = target.GetType();
-            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(f => !f.IsStatic).Where(f => f.IsPublic || Attribute.IsDefined(f, typeof(SerializeField))).Where(f => !Attribute.IsDefined(f, typeof(NonSerializedAttribute))).ToArray();
+            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(f => !f.IsStatic)
+                .Where(f => f.IsPublic || Attribute.IsDefined(f, typeof(SerializeField)))
+                .Where(f => !Attribute.IsDefined(f, typeof(NonSerializedAttribute)))
+                .ToArray();
 
             foreach (FieldInfo field in fields) {
                 if (DrawField(target, field)) {

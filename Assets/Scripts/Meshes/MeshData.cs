@@ -2,33 +2,77 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Meshes {
+    /// <summary>
+    /// Stores mesh and connectivity information.
+    /// </summary>
     public class MeshData {
+        /// <summary>
+        /// Unity mesh instance visualized in the scene
+        /// </summary>
         public Mesh mesh;
+
+        /// <summary>
+        /// Vertex positions
+        /// </summary>
         public Vector3[] vertices;
+
+        /// <summary>
+        /// Triangle index buffer, grouped by triples
+        /// </summary>
         public int[] triangles;
+
+        /// <summary>
+        /// For each vertex (index) <c>i</c>, store the corresponding 1-ring neighbor set
+        /// </summary>
         public HashSet<int>[] neighbors;
+
+        /// <summary>
+        /// For each vertex (index) <c>i</c>, store pairs <c>(a,b)</c> such that <c>(i,a,b)</c> is an incident triangle
+        /// </summary>
         public List<(int, int)>[] triangleNeighborPairsByVertex;
+
+        /// <summary>
+        /// Marks constrained boundary vertices.
+        /// </summary>
         public bool[] fixedVertices;
 
+        /// <summary>
+        /// Creates a new MeshData object.
+        /// </summary>
+        /// <param name="mesh">Unity mesh instance</param>
+        /// <param name="vertices">Vertex positions.</param>
+        /// <param name="triangles">Triangle index buffer</param>
+        /// <param name="neighbors">1-ring neighborhood per vertex</param>
+        /// <param name="triangleNeighborPairsByVertex">Incident triangle neighbor pairs per vertex</param>
+        /// <param name="fixedVertices">Boundary constraint mask</param>
         public MeshData(Mesh mesh, Vector3[] vertices, int[] triangles, HashSet<int>[] neighbors, List<(int, int)>[] triangleNeighborPairsByVertex, bool[] fixedVertices) {
             this.mesh = mesh;
             this.vertices = vertices;
             this.triangles = triangles;
-            this.neighbors = neighbors; // For each vertex i, store a list of its 1-ring neighbors
-            this.triangleNeighborPairsByVertex = triangleNeighborPairsByVertex; // For each vertex i, stores a list of (j, k) pairs such that (i, j, k) forms a triangle (i.e. the two other vertices adjacent to i in each incident triangle)
-            this.fixedVertices = fixedVertices; // For each vertex i, indicates whether it is fixed in place
+            this.neighbors = neighbors;
+            this.triangleNeighborPairsByVertex = triangleNeighborPairsByVertex;
+            this.fixedVertices = fixedVertices;
         }
 
+        /// <summary>
+        /// Colors vertices by signed mean curvature and discard the new computed maximum absolute curvature
+        /// </summary>
+        /// <param name="maxAbsH">Optional fixed normalization scale</param>
         public void ColorVerticesByMeanCurvature(float maxAbsH = 0) {
             ColorVerticesByMeanCurvature(out _, maxAbsH);
         }
 
+        /// <summary>
+        /// Colors vertices by signed mean curvature using a Laplace-Beltrami estimate.
+        /// </summary>
+        /// <param name="currentMaxAbsH">Returns the maximum absolute curvature found in the current mesh state.</param>
+        /// <param name="maxAbsH"> Optional fixed normalization scale. If zero, the maximum absolute curvature of this frame is used </param>
         public void ColorVerticesByMeanCurvature(out float currentMaxAbsH, float maxAbsH = 0) {
             currentMaxAbsH = 0f;
             if (mesh == null || vertices == null || triangleNeighborPairsByVertex == null) return;
 
             int n = vertices.Length;
-            float[] H = new float[n];
+            float[] H = new float[n]; // for a vertex (index) i, store its signed mean curvature
 
             for (int i = 0; i < n; i++) {
                 float A_i = 0f;
@@ -55,6 +99,7 @@ namespace Meshes {
                     bool obtuseAtA = Vector3.Dot(ai, -ba) < 0f;
                     bool obtuseAtB = Vector3.Dot(bi, ba) < 0f;
 
+                    // mixed Voronoi area
                     if (obtuseAtI) {
                         A_i += 0.5f * A;
                     } else if (obtuseAtA || obtuseAtB) {
@@ -107,6 +152,12 @@ namespace Meshes {
             mesh.SetColors(colors);
         }
 
+        /// <summary>
+        /// Computes <c>cot(theta)</c> between two vectors.
+        /// </summary>
+        /// <param name="u">First vector</param>
+        /// <param name="v">Second vector</param>
+        /// <returns><c>u.v/|u x v|</c></returns>
         static float CotanBetween(Vector3 u, Vector3 v) {
             return Vector3.Dot(u, v) / Vector3.Cross(u, v).magnitude;
         }

@@ -1,14 +1,24 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using ThirdParty.Stl;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Meshes {
+    /// <summary>
+    /// Imports an STL mesh.
+    /// </summary>
     [CreateAssetMenu(menuName = "Minimal Surfaces/Generators/STL Mesh Loader")]
     public class StlMeshLoader : MeshGeneratorBase {
+        /// <summary>
+        /// Path to the STL file.
+        /// </summary>
         public string FilePath { get; set; }
 
+        /// <summary>
+        /// Loads the STL mesh, merges duplicate vertices, and computes connectivity.
+        /// </summary>
+        /// <returns>Generated mesh data, or <see langword="null"/> if no file path is set.</returns>
         public override MeshData Generate() {
             if (string.IsNullOrEmpty(FilePath)) return null;
 

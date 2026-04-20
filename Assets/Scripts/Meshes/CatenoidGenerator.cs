@@ -1,19 +1,20 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Meshes {
     /// <summary>
-    /// Generates an open cylinder mesh with fixed boundary rings.
+    /// Generates a catenoid mesh
     /// </summary>
-    [CreateAssetMenu(menuName = "Minimal Surfaces/Generators/Holed Cylinder")]
-    public class HoledCylinderGenerator : MeshGeneratorBase {
+    [CreateAssetMenu(menuName = "Minimal Surfaces/Generators/Catenoid")]
+    public class CatenoidGenerator : MeshGeneratorBase {
         /// <summary>
-        /// Cylinder radius
+        /// Catenoid parameter in <c>r(y) = a cosh(y / a)</c>
         /// </summary>
-        public float radius = 1f;
+        public float a = 0.5f;
 
         /// <summary>
-        /// Cylinder height
+        /// Total extent in the vertical direction
         /// </summary>
         public float height = 2f;
 
@@ -40,9 +41,9 @@ namespace Meshes {
         const float TAU = Mathf.PI * 2f;
 
         /// <summary>
-        /// Builds the cylinder mesh
+        /// Builds a triangulated catenoid
         /// </summary>
-        /// <returns>Generated mesh data</returns>
+        /// <returns>Generated mesh data.</returns>
         public override MeshData Generate() {
             float halfHeight = height * 0.5f;
 
@@ -56,6 +57,7 @@ namespace Meshes {
             for (int yIndex = 0; yIndex < N_y + 1; yIndex++) {
                 float t = yIndex / (float)N_y;
                 float y = Mathf.Lerp(-halfHeight, halfHeight, t);
+                double radius = a * Math.Cosh(y / a);
 
                 for (int thetaIndex = 0; thetaIndex < N_x; thetaIndex++) {
                     float theta = thetaIndex * dTheta;
@@ -64,14 +66,14 @@ namespace Meshes {
                         theta += yIndex * dTheta * 0.5f;
                     }
 
-                    float x = Mathf.Cos(theta) * radius;
-                    float z = Mathf.Sin(theta) * radius;
-                    Vector3 p = new Vector3(x, y, z);
+                    double x = radius * Mathf.Cos(theta);
+                    double z = radius * Mathf.Sin(theta);
+                    Vector3 p = new Vector3((float)x, y, (float)z);
                     vertices.Add(rotation * p);
                 }
             }
 
-            // Connect each pair of consecutive rings with two triangles per angular segment.
+            // Connect each pair of consecutive rings with two triangles per angular segment
             for (int yIndex = 0; yIndex < N_y; yIndex++) {
                 int ringStart = yIndex * N_x;
                 int nextRingStart = (yIndex + 1) * N_x;

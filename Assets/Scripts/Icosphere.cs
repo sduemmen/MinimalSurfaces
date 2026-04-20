@@ -1,7 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Builds a triangulated sphere by recursive subdivision of an icosahedron.
+/// </summary>
 public static class IcoSphere {
+    /// <summary>
+    /// Creates an icosphere mesh.
+    /// </summary>
+    /// <param name="radius">Target sphere radius.</param>
+    /// <param name="subdivisions">Number of subdivisions</param>
+    /// <returns>Unity mesh instance</returns>
     public static Mesh Create(float radius = 1.0f, int subdivisions = 2) {
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -19,6 +28,11 @@ public static class IcoSphere {
         return mesh;
     }
 
+    /// <summary>
+    /// Initializes vertices and faces of the regular icosahedron.
+    /// </summary>
+    /// <param name="vertices">Destination vertex list.</param>
+    /// <param name="triangles">Destination triangle index list.</param>
     static void CreateBaseIcosahedron(List<Vector3> vertices, List<int> triangles) {
         vertices.Clear();
         triangles.Clear();
@@ -50,6 +64,12 @@ public static class IcoSphere {
         triangles.AddRange(faces);
     }
 
+    /// <summary>
+    /// Splits each triangle into four triangles using edge midpoints
+    /// </summary>
+    /// <param name="vertices">Vertex list modified in place</param>
+    /// <param name="triangles">Triangle index list modified in place.</param>
+    /// <param name="subdivisions">Number of subdivisions</param>
     static void Subdivide(List<Vector3> vertices, List<int> triangles, int subdivisions) {
         Dictionary<EdgeKey, int> midpointCache = new Dictionary<EdgeKey, int>();
 
@@ -105,6 +125,11 @@ public static class IcoSphere {
         return newIndex;
     }
 
+    /// <summary>
+    /// Projects all vertices onto the sphere of radius <paramref name="radius"/>
+    /// </summary>
+    /// <param name="vertices">Vertices to normalize and scale.</param>
+    /// <param name="radius">Target radius</param>
     static void ProjectToSphere(List<Vector3> vertices, float radius) {
         for (int i = 0; i < vertices.Count; i++) {
             vertices[i] = vertices[i].normalized * radius;

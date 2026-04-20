@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 62d225d81787c664c9e9d4cba8354734
+guid: 5be8b5691257b9d4f88b144853b0e6df
 labels:
 - NuGetForUnity
 PluginImporter:
@@ -14,7 +14,7 @@ PluginImporter:
   validateReferences: 1
   platformData:
     Any:
-      enabled: 0
+      enabled: 1
       settings: {}
     Editor:
       enabled: 0
@@ -22,7 +22,8 @@ PluginImporter:
         DefaultValueInitialized: true
     WindowsStoreApps:
       enabled: 0
-      settings: {}
+      settings:
+        CPU: AnyCPU
   userData: 
   assetBundleName: 
   assetBundleVariant: 

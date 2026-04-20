@@ -1,14 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Meshes;
 using System.IO;
 using Solver;
 using ThirdParty.StandaloneFileBrowser;
 using ThirdParty.Stl;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace UI {
+    /// <summary>
+    /// Runtime control panel for mesh generation, solver setup, and import/export actions.
+    /// </summary>
     public class MinimalSurfaceUI : MonoBehaviour {
         [SerializeField] MainCamera _mainCamera;
         [SerializeField] MinimalSurface _surface;
@@ -19,7 +23,7 @@ namespace UI {
         [SerializeField] Rect _panelRect = new Rect(12, 12, 520, 1080);
         [SerializeField] KeyCode _toggleUIKey = KeyCode.T;
 
-        bool shouldHideUI = false;
+        bool _shouldHideUI = false;
 
         int _selectedGeneratorIdx;
         int _selectedSolverIdx;
@@ -50,14 +54,18 @@ namespace UI {
 
         void Update() {
             if (Keyboard.current.tKey.wasPressedThisFrame) {
-                shouldHideUI = !shouldHideUI;
+                _shouldHideUI = !_shouldHideUI;
             }
-
+#if UNITY_EDITOR
             if (Keyboard.current.sKey.wasPressedThisFrame) {
                 CaptureScreenshot();
             }
+#endif
         }
 
+        /// <summary>
+        /// Captures a high-resolution square screenshot with the main camera.
+        /// </summary>
         void CaptureScreenshot() {
             Camera captureCamera = _mainCamera.GetComponent<Camera>();
 
@@ -97,11 +105,22 @@ namespace UI {
             }
         }
 
+        /// <summary>
+        /// Ensures runtime clone instances exist for the currently selected generator and solver assets.
+        /// </summary>
         void EnsureInstances() {
             _generator = GetOrCreateInstance(_generators, _selectedGeneratorIdx, _generator);
             _solver = GetOrCreateInstance(_solvers, _selectedSolverIdx, _solver);
         }
 
+        /// <summary>
+        /// Returns a runtime clone of a ScriptableObject asset.
+        /// </summary>
+        /// <typeparam name="T">ScriptableObject type.</typeparam>
+        /// <param name="list">List of all available assets of type T</param>
+        /// <param name="index">Selected index in the given list.</param>
+        /// <param name="currentInstance">Current runtime clone that can be null</param>
+        /// <returns>Runtime clone matching the selected asset</returns>
         static T GetOrCreateInstance<T>(List<T> list, int index, T currentInstance) where T : ScriptableObject {
             if (list == null || list.Count == 0) return null;
 
@@ -119,8 +138,12 @@ namespace UI {
             return currentInstance;
         }
 
+        /// <summary>
+        /// Draws the user interface.
+        /// </summary>
         void OnGUI() {
-            if (shouldHideUI) return;
+            DrawQuitButton();
+            if (_shouldHideUI) return;
 
             GUILayout.BeginArea(_panelRect, GUI.skin.window);
             _scroll = GUILayout.BeginScrollView(_scroll);
@@ -199,10 +222,6 @@ namespace UI {
 
             EnsureInstances();
 
-            // if ((generatorChanged || generatorSettingsChanged) && !_surface.IsSolving) {
-            //     _surface.GenerateMesh(_generator);
-            // }
-
             if (solverChanged && _surface.IsSolving) {
                 _surface.SwitchSolver(_solver);
             }
@@ -215,6 +234,27 @@ namespace UI {
             GUILayout.EndArea();
         }
 
+        /// <summary>
+        /// Draws an always-visible quit button in the top-right corner.
+        /// </summary>
+        void DrawQuitButton() {
+            const float buttonWidth = 96f;
+            const float buttonHeight = 32f;
+            const float margin = 12f;
+
+            Rect buttonRect = new Rect(Screen.width - buttonWidth - margin, margin, buttonWidth, buttonHeight);
+            if (GUI.Button(buttonRect, "Quit")) {
+#if UNITY_EDITOR
+                EditorApplication.ExitPlaymode();
+#else
+                Application.Quit();
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Draws buttons for mesh-generation, solving, exporting, and status line.
+        /// </summary>
         void DrawControlButtons() {
             GUILayout.BeginHorizontal();
 

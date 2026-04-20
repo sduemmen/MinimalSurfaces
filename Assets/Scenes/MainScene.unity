@@ -157,7 +157,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BackGroundColor: {r: 0.05660379, g: 0.05660379, b: 0.05660379, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -370,13 +370,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.062340874, y: 0.65602404, z: 0.19253029, w: 0.7271027}
+  m_LocalRotation: {x: 0.33161756, y: 0.6802275, z: -0.068744704, w: 0.6500727}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -9.32, y: 82.342, z: 21.507}
+  m_LocalEulerAnglesHint: {x: 31.646, y: 99.831, z: 25.148}
 --- !u!114 &410087042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -490,10 +490,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e79c8b9c30dfdfe4192ce985eaedb5e2, type: 2}
   - {fileID: 11400000, guid: f327e5b3be68f624da67d095ce9b8d02, type: 2}
   - {fileID: 11400000, guid: 690edfc864583fb4db004ca486fde4b5, type: 2}
+  - {fileID: 11400000, guid: 0caedf30f83ade243b7ef653dbeee943, type: 2}
   _solvers:
-  - {fileID: 11400000, guid: b3c3690933ddcd042bfefe653dc2c27d, type: 2}
   - {fileID: 11400000, guid: 39cbbbf00ff3f6d4aac3fb4276e851d3, type: 2}
   - {fileID: 11400000, guid: ae7aacf3f1e0e7f44bac229c3e036d76, type: 2}
+  - {fileID: 11400000, guid: b3c3690933ddcd042bfefe653dc2c27d, type: 2}
   - {fileID: 11400000, guid: a0d255996fd005e4b81cf976135909d9, type: 2}
   _panelRect:
     serializedVersion: 2
@@ -561,7 +562,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e5dbd8a86f8ee1d4da07486d27a5d169, type: 2}
+  - {fileID: 2100000, guid: aedffffbecbc63d47a52c2cac23d4c70, type: 2}
   - {fileID: 2100000, guid: 84509c5336974d38a85fac1cf7c69edc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -625,10 +626,10 @@ MonoBehaviour:
   _litMaterial: {fileID: 2100000, guid: 79af6cb25041613bebb0f506809536a1, type: 2}
   _unlitMaterial: {fileID: 2100000, guid: 24c79c8a618f6ee469dd2d083bdf4276, type: 2}
   _meanCurvatureMaterial: {fileID: 2100000, guid: e5dbd8a86f8ee1d4da07486d27a5d169, type: 2}
-  _soapMaterial: {fileID: 0}
+  _soapMaterial: {fileID: 2100000, guid: aedffffbecbc63d47a52c2cac23d4c70, type: 2}
   _wireframeMaterial: {fileID: 2100000, guid: 84509c5336974d38a85fac1cf7c69edc, type: 2}
-  materialMode: 2
-  showWireframe: 1
+  materialMode: 3
+  showWireframe: 0
   stepsPerSecond: 240
   maxSteps: 100000
   minStepsPerSecond: 1

@@ -1,22 +1,55 @@
-﻿using Meshes;
+using Meshes;
 using UnityEngine;
 
 namespace Solver {
+    /// <summary>
+    /// Particle-based solver with damped leapfrog integration and pairwise interaction forces.
+    /// </summary>
     [CreateAssetMenu(menuName = "Minimal Surfaces/Solvers/Particle Dynamics")]
     public class ParticleDynamicsSolver : MinimalSurfaceSolverBase {
+        /// <summary>
+        /// Time-step size.
+        /// </summary>
         public float dt = 0.0001f;
+
+        /// <summary>
+        /// Strength of the attractive term.
+        /// </summary>
         public float G = 0.87f;
+
+        /// <summary>
+        /// Strength of the repulsive term.
+        /// </summary>
         public float H = 0.59f;
+
+        /// <summary>
+        /// Exponent of the attractive distance term.
+        /// </summary>
         public float p = 2f;
+
+        /// <summary>
+        /// Exponent of the repulsive distance term.
+        /// </summary>
         public float q = 4f;
-        public float velocityDamping = 0.5f;
-        public float maxParticleInteractionDistance = 1.311f;
-        public float convergenceTolerance = 1e-05f;
+
+        /// <summary>
+        /// Per-step velocity damping factor.
+        /// </summary>
+        public float zeta = 0.5f;
+
+        /// <summary>
+        /// Convergence threshold for the maximum per-step displacement.
+        /// </summary>
+        public float epsilon = 1e-05f;
 
         Vector3[] _velocities;
         Vector3[] _accelerations;
 
-
+        /// <summary>
+        /// Initializes state and computes the first half-step velocity.
+        /// </summary>
+        /// <param name="meshData">Current mesh state.</param>
+        /// <param name="context">The current minimal surface.</param>
         public override void Initialize(MeshData meshData, MinimalSurface context) {
             base.Initialize(meshData, context);
             _velocities = new Vector3[meshData.vertices.Length];
@@ -28,33 +61,30 @@ namespace Solver {
             for (int i = 0; i < meshData.vertices.Length; i++) {
                 _velocities[i] = meshData.fixedVertices[i] ? Vector3.zero : 0.5f * dt * _accelerations[i];
             }
-
-            // for (int i = 0; i < meshData.neighbors.Length; i++) {
-            //     HashSet<int> neighbors = meshData.neighbors[i];
-            //     Vector3 x1 = meshData.vertices[i];
-            //     foreach (int j in neighbors) {
-            //         Vector3 x2 = meshData.vertices[j];
-            //         Debug.Log(Vector3.Distance(x1, x2));
-            //     }
-            // }
         }
 
+        /// <summary>
+        /// Advances one step.
+        /// </summary>
+        /// <param name="meshData">Current mesh state.</param>
+        /// <param name="context">The current minimal surface.</param>
+        /// <returns><see langword="true"/> when the maximum per-step displacement is below <see cref="epsilon"/>.</returns>
         public override bool Step(MeshData meshData, MinimalSurface context) {
             // a_k = F(r_k)
             ComputeAccelerations(meshData);
 
-            // v_{k+1/2} = v_{k-1/2} + dt * a_k
+            // compute velocity using the new acceleration: v_{k+1/2} = (1-zeta) v_{k-1/2} + dt * a_k
             for (int i = 0; i < meshData.vertices.Length; i++) {
                 if (meshData.fixedVertices[i]) {
                     _velocities[i] = Vector3.zero;
                     continue;
                 }
 
-                _velocities[i] *= 1 - velocityDamping;
+                _velocities[i] *= 1 - zeta;
                 _velocities[i] += dt * _accelerations[i];
             }
 
-            // r_{k+1} = r_k + dt * v_{k+1/2}
+            // compute new position using the new velocity: r_{k+1} = r_k + dt * v_{k+1/2}
             float maxGrad = 0f;
             for (int i = 0; i < meshData.vertices.Length; i++) {
                 if (meshData.fixedVertices[i]) continue;
@@ -69,9 +99,13 @@ namespace Solver {
             }
 
             UpdateMesh(meshData, context);
-            return maxGrad < convergenceTolerance;
+            return maxGrad < epsilon;
         }
 
+        /// <summary>
+        /// Recomputes vertex accelerations from pairwise neighbor forces.
+        /// </summary>
+        /// <param name="meshData">Current mesh state.</param>
         void ComputeAccelerations(MeshData meshData) {
             for (int i = 0; i < meshData.vertices.Length; i++) {
                 if (meshData.fixedVertices[i]) {
@@ -91,20 +125,7 @@ namespace Solver {
                     F_i += (-(G / rp) + H / rq) * r_ij.normalized;
                 }
 
-                // for (int j = 0; j < meshData.vertices.Length; j++) {
-                //     if (i == j) continue;
-                //     
-                //     Vector3 x_j = meshData.vertices[j];
-                //     Vector3 r_ij = x_i - x_j;
-                //     
-                //     if (r_ij.magnitude > maxParticleInteractionDistance) continue;
-                //
-                //     float rp = Mathf.Pow(r_ij.magnitude, p);
-                //     float rq = Mathf.Pow(r_ij.magnitude, q);
-                //     F_i += (-(G / rp) + (H / rq)) * r_ij.normalized;
-                // }
-
-                _accelerations[i] = F_i; // we assume unit mass m=1, so F=ma becomes a=F
+                _accelerations[i] = F_i;
             }
         }
     }
