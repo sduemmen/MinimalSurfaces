@@ -9,6 +9,7 @@ MinimalSurfaces is a Unity-based program for the numerical computation and visua
 ## Download
 
 Prebuilt binaries can be found under [Releases](https://github.com/sduemmen/MinimalSurfaces/releases).
+Download the archive for your platform and extract it to a folder of your choice. Then run the contained executable (`MinimalSurfaces.exe` for Windows, `MinimalSurfaces.x86_64` for Linux) to start the program.
 
 ## Features
 
